@@ -19,7 +19,7 @@ namespace Bluetech.Pot.DataLayer
         public string Cap { get; set; }
         public string Comune { get; set; }
         public string Provincia { get; set; }
-
+        public string Nazione { get; set; }
     }
 
     public class Medico

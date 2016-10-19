@@ -8,6 +8,7 @@ using Bluetech.Pot.DataLayer;
 
 namespace Bluetech.Pot.BusinessLayer
 {
+    
     public class Authentication
     {
         private const int _expirationMinutes = 10;
@@ -40,6 +41,7 @@ namespace Bluetech.Pot.BusinessLayer
         }
         public static bool IsTokenValid(string token, string ip, string userAgent)
         {
+            checkMexalClient();
             bool result = false;
             try
             {
@@ -109,6 +111,21 @@ namespace Bluetech.Pot.BusinessLayer
             return IsTokenValid(token, ip, userAgent);
         }
 
+        public static Boolean checkMexalClient()
+        {
+
+            Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
+
+            if (mc == null)
+            {
+                mc = new Mexal.MexalClient();
+                string result;
+                mc.AvviaConnessione(out result);
+                HttpContext.Current.Application["mxlClient"] = mc;
+            }
+
+            return true;
+        }
     }
 
     public static class Interface
@@ -208,6 +225,13 @@ namespace Bluetech.Pot.BusinessLayer
             }
 
             // elaborazione verso mexal
+            Authentication.checkMexalClient();
+            Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
+
+            mc.Cliente = new Mexal.MexalAnagrafica();
+            mc.Cliente.LoadFromCliente(cliente);
+            mc.Cliente.Mastro = "530";
+            mc.SetAnagrafica(mc.Cliente, out message);
             message = "OK!";
             return true;
 
