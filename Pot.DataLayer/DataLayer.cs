@@ -21,7 +21,6 @@ namespace Bluetech.Pot.DataLayer
         public string Provincia { get; set; }
         public string Nazione { get; set; }
     }
-
     public class Medico
     {
         public string Nome { get; set; }
@@ -37,6 +36,7 @@ namespace Bluetech.Pot.DataLayer
         public string Cap { get; set; }
         public string Comune { get; set; }
         public string Provincia { get; set; }
+        public string Nazione { get; set; }
 
     }
     public class Articolo
@@ -47,22 +47,29 @@ namespace Bluetech.Pot.DataLayer
         public string AliquotaIva { get; set; }
         
     }
-    public class FatturaTestata
+    public class OrdineTestata
     {
         public string CodiceUnivocoControparte { get; set; }
-        public DateTime? DataFattura { get; set; }
-        public string ProgressivoFattura { get; set; }
-        public string SerieFattura { get; set; }
+        public DateTime? DataOrdine { get; set; }
+        public string ProgressivoOrdine { get; set; }
+        public string SerieOrdine { get; set; }
         public decimal TotaleImponibile { get; set; }
         public decimal TotaleImposte { get; set; }
         public decimal TotaleFattura { get; set; }
         public string TipoPagamento { get; set; }
         public string BancaPagamento { get; set; }
-        public List<FatturaRiga> Righe { get; set; }
+        public string CodicePratica { get; set; }
+        public List<OrdineRiga> Righe { get; set; }
+        public string CodiceUnivocoMedico { get; set; }
+        public decimal ImportoMedico { get; set; }
 
+        public OrdineTestata()
+        {
+            Righe = new List<OrdineRiga>();
+        }
 
     }
-    public class FatturaRiga
+    public class OrdineRiga
     {
         public string CodiceArticolo { get; set; }
         public string DescrizioneRiga { get; set; }

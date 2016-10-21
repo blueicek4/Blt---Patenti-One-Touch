@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Bluetech.Pot.DataLayer;
+using Bluetech.Mexal;
 
 namespace Bluetech.Pot.BusinessLayer
 {
@@ -57,7 +58,7 @@ namespace Bluetech.Pot.BusinessLayer
                     long ticks = long.Parse(parts[2]);
                     DateTime timeStamp = new DateTime(ticks);
                     // Ensure the timestamp is valid.
-                    bool expired = Math.Abs((DateTime.UtcNow - timeStamp).TotalMinutes) > _expirationMinutes;
+                    bool expired = Math.Abs((DateTime.Now - timeStamp).TotalMinutes) > _expirationMinutes;
                     if (!expired)
                     {
                         //
@@ -82,6 +83,7 @@ namespace Bluetech.Pot.BusinessLayer
 
         public static Boolean Login(string username, string password, out string token, out string message)
         {
+            checkMexalClient();
             string userAgent = HttpContext.Current.Request.UserAgent;
             long timeStamp = DateTime.Now.Ticks;
             string ip = HttpContext.Current.Request.UserHostAddress;
@@ -123,44 +125,53 @@ namespace Bluetech.Pot.BusinessLayer
                 mc.AvviaConnessione(out result);
                 HttpContext.Current.Application["mxlClient"] = mc;
             }
-
+            //mc.CercaCliente(null);
             return true;
         }
     }
 
     public static class Interface
     {
-        public static Boolean ExecuteFattura(FatturaTestata fattura, out string message)
+        public static Boolean ExecuteOrdine(OrdineTestata ordine, out string message)
         {
-            if (string.IsNullOrWhiteSpace(fattura.CodiceUnivocoControparte))
+            if (string.IsNullOrWhiteSpace(ordine.CodiceUnivocoControparte))
             {
                 message = "Controparte Mancante";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(fattura.ProgressivoFattura))
+            if (string.IsNullOrWhiteSpace(ordine.ProgressivoOrdine))
             {
                 message = "Progressivo Mancante";
                 return false;
             }
-            if (fattura.DataFattura == DateTime.MinValue || fattura.DataFattura == null)
+            if (ordine.DataOrdine == DateTime.MinValue || ordine.DataOrdine == null)
             {
                 message = "Data Fattura Mancante o errata";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(fattura.TipoPagamento))
+            if (string.IsNullOrWhiteSpace(ordine.TipoPagamento))
             {
                 message = "Tipo pagamento Mancante";
                 return false;
             }
-            if (fattura.Righe.Sum(r => r.Qta * r.PrezzoUnitario) != fattura.TotaleImponibile)
+            if (ordine.Righe.Sum(r => r.Qta * r.PrezzoUnitario) != ordine.TotaleImponibile)
             {
                 message = "Importo righe diverso da Totale Imponibile";
                 return false;
             }
 
             // elaborazione verso mexal
-            message = "OK!";
-            return true;
+            Authentication.checkMexalClient();
+            Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
+
+            mc.Documento = new Mexal.MexalDocumentoTestata();
+            mc.Documento.LoadFromOrdine(ordine);
+            mc.Documento.Sigla = "OC";
+            mc.Documento.Magazzino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Magazzino"]);
+            var result = mc.SetOrdine(mc.Documento, ordine.CodiceUnivocoMedico, ordine.ImportoMedico, out message);
+            if (result)
+                message = "OK!";
+            return result;
         }
 
         public static Boolean ExecuteVisita(EsitoVisita visita, out string message)
@@ -230,10 +241,12 @@ namespace Bluetech.Pot.BusinessLayer
 
             mc.Cliente = new Mexal.MexalAnagrafica();
             mc.Cliente.LoadFromCliente(cliente);
-            mc.Cliente.Mastro = "530";
-            mc.SetAnagrafica(mc.Cliente, out message);
-            message = "OK!";
-            return true;
+            mc.Cliente.Mastro = System.Configuration.ConfigurationManager.AppSettings["MastroCliente"];
+            mc.Cliente.Listino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Listino"]);
+            var result = mc.SetAnagrafica(mc.Cliente, out message);
+            if(result)
+                message = "OK!";
+            return result;
 
         }
 
@@ -271,6 +284,13 @@ namespace Bluetech.Pot.BusinessLayer
             }
 
             // elaborazione verso mexal
+            Authentication.checkMexalClient();
+            Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
+
+            mc.Cliente = new Mexal.MexalAnagrafica();
+            mc.Cliente.LoadFromMedico(medico);
+            mc.Cliente.Mastro = "530";
+            mc.SetAnagrafica(mc.Cliente, out message);
             message = "OK!";
             return true;
         }

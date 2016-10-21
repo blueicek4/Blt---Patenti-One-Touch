@@ -83,7 +83,6 @@ namespace Bluetech
                 Pot.DataLayer.Cliente cliente = (Pot.DataLayer.Cliente)new JavaScriptSerializer().Deserialize(ClienteJson, typeof(Pot.DataLayer.Cliente));
 
                 result = Pot.BusinessLayer.Interface.ExecuteCliente(cliente, out message);
-                System.Threading.Thread.Sleep(3 * 1000);
             }
 
             else
@@ -125,7 +124,7 @@ namespace Bluetech
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
-        public string SetFattura(string token, string FatturaJson)
+        public string SetOrdine(string token, string FatturaJson)
         {
             string userAgent = HttpContext.Current.Request.UserAgent;
             string ip = HttpContext.Current.Request.UserHostAddress;
@@ -134,10 +133,9 @@ namespace Bluetech
 
             if (Pot.BusinessLayer.Authentication.IsTokenValid(token, ip, userAgent))
             {
-                Pot.DataLayer.FatturaTestata fattura = (Pot.DataLayer.FatturaTestata)new JavaScriptSerializer().Deserialize(FatturaJson, typeof(Pot.DataLayer.FatturaTestata));
+                Pot.DataLayer.OrdineTestata fattura = (Pot.DataLayer.OrdineTestata)new JavaScriptSerializer().Deserialize(FatturaJson, typeof(Pot.DataLayer.OrdineTestata));
 
-                result = Pot.BusinessLayer.Interface.ExecuteFattura(fattura, out message);
-                System.Threading.Thread.Sleep(3 * 1000);
+                result = Pot.BusinessLayer.Interface.ExecuteOrdine(fattura, out message);
             }
 
             else
@@ -240,27 +238,28 @@ namespace Bluetech
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
-        public string GetModelFatturaJson()
+        public string GetModelOrdineJson()
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
-            FatturaTestata f = new FatturaTestata();
+            OrdineTestata f = new OrdineTestata();
             f.CodiceUnivocoControparte = "12345678";
-            f.ProgressivoFattura = "123456";
-            f.SerieFattura = "ABC";
-            f.DataFattura = DateTime.Now.Date;
+            f.ProgressivoOrdine = "123456";
+            f.SerieOrdine = "ABC";
+            f.DataOrdine = DateTime.Now.Date;
             f.TipoPagamento = "CC";
             f.BancaPagamento = "CODICEBANCA";
             f.TotaleFattura = 80;
             f.TotaleImponibile = 75.16M;
             f.TotaleImposte = 4.84M;
+            f.CodicePratica = "6SOM53KW";
 
-            List<FatturaRiga> r = new List<FatturaRiga>();
-            r.Add(new FatturaRiga() { CodiceArticolo = "A-SP0001", DescrizioneRiga = "PRATICA NR. 6SOM53KW", Udm = "UR", Qta = 1, AliquotaIva = "22", PrezzoUnitario = 22 });
-            r.Add(new FatturaRiga() { CodiceArticolo = "A-SP0002", DescrizioneRiga = "DIRITTO DELLA MOTORIZZAZIONE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 11.98M });
-            r.Add(new FatturaRiga() { CodiceArticolo = "A-SP0003", DescrizioneRiga = "IMPOSTA DI BOLLO", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 17.78M });
-            r.Add(new FatturaRiga() { CodiceArticolo = "A-SP0004", DescrizioneRiga = "SPESE AMMINISTRATIVE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 3.4M });
-            r.Add(new FatturaRiga() { CodiceArticolo = "A-SP0005", DescrizioneRiga = "ONORARIO DOTTORE MARCO ROSSI", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 20 });
+            List<OrdineRiga> r = new List<OrdineRiga>();
+            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0001", DescrizioneRiga = "PRATICA NR. 6SOM53KW", Udm = "UR", Qta = 1, AliquotaIva = "22", PrezzoUnitario = 22 });
+            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0002", DescrizioneRiga = "DIRITTO DELLA MOTORIZZAZIONE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 11.98M });
+            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0003", DescrizioneRiga = "IMPOSTA DI BOLLO", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 17.78M });
+            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0004", DescrizioneRiga = "SPESE AMMINISTRATIVE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 3.4M });
+            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0005", DescrizioneRiga = "ONORARIO DOTTORE MARCO ROSSI", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 20 });
 
             f.Righe = r;
 
