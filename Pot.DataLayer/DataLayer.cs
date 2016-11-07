@@ -47,6 +47,21 @@ namespace Bluetech.Pot.DataLayer
         public string AliquotaIva { get; set; }
         
     }
+    public class OrdineWeb
+    {
+        public string CodiceUnivocoControparte { get; set; }
+        public DateTime? DataOrdine { get; set; }
+        public string CodicePratica { get; set; }
+        public decimal TotaleImponibile { get; set; }
+        public decimal TotaleImposte { get; set; }
+        public decimal TotaleFattura { get; set; }
+        public string TipoPagamento { get; set; }
+        public string BancaPagamento { get; set; }
+        public string CodiceUnivocoMedico { get; set; }
+        public decimal ImportoMedico { get; set; }
+        public decimal ImportoSconto { get; set; }
+
+    }
     public class OrdineTestata
     {
         public string CodiceUnivocoControparte { get; set; }

@@ -34,10 +34,10 @@ public class MexalClient
             this.WindowsPassword = System.Configuration.ConfigurationManager.AppSettings["MexalWindowsPassword"];
             this.MexalUsername = System.Configuration.ConfigurationManager.AppSettings["MexalUsername"];
             this.MexalPassword = System.Configuration.ConfigurationManager.AppSettings["MexalPassword"];
-            this.Terminale = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["MexalAzienda"]);
+            this.Terminale = 0;
             this.SottoAzienda = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["MexalSottoAzienda"]);
             this.DataTerminale = DateTime.Now.Date;
-            this.Azienda = System.Configuration.ConfigurationManager.AppSettings["MexalPort"];
+            this.Azienda = System.Configuration.ConfigurationManager.AppSettings["MexalAzienda"];
             this.client = new MxSpxDotNet(this);
         }
         public MexalClient( Int32 _porta, string _indirizzo, string _winUsername, string _winPassword, string _mxlUsername, string _mxlPassword, Int32 _terminale, string _azienda, DateTime _data)
@@ -116,7 +116,7 @@ public class MexalClient
                 this.client.MYDB_S[1] = this.client.PCCOD_S;
                 this.client.MYDB_S[2] = _anagrafica.CodiceRiferimento;
                 
-                message = "Ok!";
+                message = this.client.PCCOD_S;
                 return true;
             }
             else
@@ -190,6 +190,8 @@ public class MexalClient
                     message = this.client.ERRPN_S;
                     return false;
                 }
+
+                this.client.mm
 
             }
             else

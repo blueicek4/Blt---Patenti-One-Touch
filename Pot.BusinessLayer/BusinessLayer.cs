@@ -244,8 +244,8 @@ namespace Bluetech.Pot.BusinessLayer
             mc.Cliente.Mastro = System.Configuration.ConfigurationManager.AppSettings["MastroCliente"];
             mc.Cliente.Listino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Listino"]);
             var result = mc.SetAnagrafica(mc.Cliente, out message);
-            if(result)
-                message = "OK!";
+            //if(result)
+                //message = "OK!";
             return result;
 
         }
@@ -289,9 +289,9 @@ namespace Bluetech.Pot.BusinessLayer
 
             mc.Cliente = new Mexal.MexalAnagrafica();
             mc.Cliente.LoadFromMedico(medico);
-            mc.Cliente.Mastro = "530";
+            //mc.Cliente.Mastro = "530";
             mc.SetAnagrafica(mc.Cliente, out message);
-            message = "OK!";
+            //message = "OK!";
             return true;
         }
 
