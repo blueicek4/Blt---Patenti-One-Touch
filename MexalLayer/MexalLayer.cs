@@ -115,8 +115,10 @@ public class MexalClient
                 //registrazione mydb per codiceriferimento
                 this.client.MYDB_S[1] = this.client.PCCOD_S;
                 this.client.MYDB_S[2] = _anagrafica.CodiceRiferimento;
-                
+                Bluetech.Database.LookupDatabaseDataContext lkpdb = new Bluetech.Database.LookupDatabaseDataContext();
+                var a = lkpdb.Anagrafiche;
                 message = this.client.PCCOD_S;
+                
                 return true;
             }
             else

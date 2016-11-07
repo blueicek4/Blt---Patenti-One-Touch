@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="PatentiLookUp" Class="LookupDatabaseDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=LOCALHOST\SQLPASS;Initial Catalog=PatentiLookUp;Persist Security Info=True;User ID=sa" SettingsObjectName="Pot.DataLayer.Properties.Settings" SettingsPropertyName="PatentiLookUpConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Pratiche" Member="Pratiche">
+    <Type Name="Pratiche">
+      <Column Name="CodicePratica" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="NumeroOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="SerieOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroClienteMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroMedicoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="ProgressivoPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="SeriePrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="SerieFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="SerieNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Anagrafiche" Member="Anagrafiche">
+    <Type Name="Anagrafiche">
+      <Column Name="CodiceEsterno" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CodiceMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="IsMedico" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>
