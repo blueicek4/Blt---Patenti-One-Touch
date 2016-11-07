@@ -44,6 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataLayer.cs" />
+    <Compile Include="LookupDatabase.cs">
+      <DependentUpon>LookupDatabase.dbml</DependentUpon>
+    </Compile>
     <Compile Include="LookupDatabase.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

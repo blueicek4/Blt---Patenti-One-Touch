@@ -132,43 +132,50 @@ namespace Bluetech.Pot.BusinessLayer
 
     public static class Interface
     {
-        public static Boolean ExecuteOrdine(OrdineTestata ordine, out string message)
+        public static Boolean ExecuteOrdine(OrdineWeb _ordine, out string message)
         {
-            if (string.IsNullOrWhiteSpace(ordine.CodiceUnivocoControparte))
+            if (string.IsNullOrWhiteSpace(_ordine.CodiceUnivocoControparte))
             {
-                message = "Controparte Mancante";
+                message = "Codice Cliente Mancante";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(ordine.ProgressivoOrdine))
+            if (string.IsNullOrWhiteSpace(_ordine.CodiceUnivocoMedico))
             {
-                message = "Progressivo Mancante";
+                message = "Codice Medico Mancante";
                 return false;
             }
-            if (ordine.DataOrdine == DateTime.MinValue || ordine.DataOrdine == null)
+            if (_ordine.DataPratica == DateTime.MinValue || _ordine.DataPratica == null)
             {
-                message = "Data Fattura Mancante o errata";
+                message = "Data Pratica Mancante o errata";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(ordine.TipoPagamento))
+            if (string.IsNullOrWhiteSpace(_ordine.TipoPagamento))
             {
                 message = "Tipo pagamento Mancante";
                 return false;
             }
-            if (ordine.Righe.Sum(r => r.Qta * r.PrezzoUnitario) != ordine.TotaleImponibile)
+            if (string.IsNullOrWhiteSpace(_ordine.CodicePratica))
             {
-                message = "Importo righe diverso da Totale Imponibile";
+                message = "Codice Pratica Mancante";
                 return false;
             }
+
+          
 
             // elaborazione verso mexal
             Authentication.checkMexalClient();
             Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
 
+            Pot.DataLayer.GestioneLookUp lkp = new GestioneLookUp();
+
+            OrdineTestata ordine = OrdineTestata.CaricaDaOrdineWeb(_ordine);
+
             mc.Documento = new Mexal.MexalDocumentoTestata();
             mc.Documento.LoadFromOrdine(ordine);
             mc.Documento.Sigla = "OC";
             mc.Documento.Magazzino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Magazzino"]);
-            var result = mc.SetOrdine(mc.Documento, ordine.CodiceUnivocoMedico, ordine.ImportoMedico, out message);
+            mc.Documento.Controparte = lkp.GetAnagrafica(_ordine.CodiceUnivocoControparte);          
+            var result = mc.SetOrdine(mc.Documento, lkp.GetAnagrafica(_ordine.CodiceUnivocoMedico), _ordine.ImportoMedico, out message);
             if (result)
                 message = "OK!";
             return result;
@@ -243,7 +250,7 @@ namespace Bluetech.Pot.BusinessLayer
             mc.Cliente.LoadFromCliente(cliente);
             mc.Cliente.Mastro = System.Configuration.ConfigurationManager.AppSettings["MastroCliente"];
             mc.Cliente.Listino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Listino"]);
-            var result = mc.SetAnagrafica(mc.Cliente, out message);
+            var result = mc.SetAnagrafica(mc.Cliente, out message, false);
             //if(result)
                 //message = "OK!";
             return result;
@@ -289,8 +296,8 @@ namespace Bluetech.Pot.BusinessLayer
 
             mc.Cliente = new Mexal.MexalAnagrafica();
             mc.Cliente.LoadFromMedico(medico);
-            //mc.Cliente.Mastro = "530";
-            mc.SetAnagrafica(mc.Cliente, out message);
+            mc.Cliente.Mastro = System.Configuration.ConfigurationManager.AppSettings["MastroMedico"];
+            mc.SetAnagrafica(mc.Cliente, out message, true);
             //message = "OK!";
             return true;
         }

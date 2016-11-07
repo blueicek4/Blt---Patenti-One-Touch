@@ -70,7 +70,7 @@ public class MexalClient
             }
         }
 
-        public Boolean SetAnagrafica(MexalAnagrafica _anagrafica, out string message)
+        public Boolean SetAnagrafica(MexalAnagrafica _anagrafica, out string message, Boolean _isMedico)
         {
             this.ResetVariabili(1);
 
@@ -113,13 +113,20 @@ public class MexalClient
             if (String.IsNullOrWhiteSpace(this.client.ERRPC_S))
             {
                 //registrazione mydb per codiceriferimento
-                this.client.MYDB_S[1] = this.client.PCCOD_S;
-                this.client.MYDB_S[2] = _anagrafica.CodiceRiferimento;
-                Bluetech.Database.LookupDatabaseDataContext lkpdb = new Bluetech.Database.LookupDatabaseDataContext();
-                var a = lkpdb.Anagrafiche;
-                message = this.client.PCCOD_S;
-                
-                return true;
+                Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+                if (lkp.SetAnagrafica(_anagrafica.CodiceRiferimento, this.client.PCCOD_S, _isMedico))
+                {
+
+
+                    message = this.client.PCCOD_S;
+
+                    return true;
+                }
+                else
+                {
+                    message = "Errore Registrazione Tabella Lookup";
+                    return false;
+                }
             }
             else
             {
@@ -131,6 +138,14 @@ public class MexalClient
 
         public Boolean SetOrdine(MexalDocumentoTestata _documento, string _medico, decimal _importoMedico, out string message)
         {
+            string numOrdine = String.Empty;
+            string datOrdine = String.Empty;
+            string serieOrdine = String.Empty;
+            string numPN = String.Empty;
+            string dataPN = String.Empty;
+            string seriePN = String.Empty;
+            string prgPN = String.Empty;
+
             //CERCO CODICE CLIENTE SU DATABASE
             this.client.MYDBK_S[2] = _documento.Controparte;
             
@@ -158,9 +173,17 @@ public class MexalClient
                 this.client.MMQTA[r + 1] = Double.Parse(_documento.Righe[r].Quantita.ToString());
                 this.client.MMALI_S[r + 1] = _documento.Righe[r].Iva;
                 this.client.MMPRZ[r + 1] = Double.Parse(_documento.Righe[r].Prezzo.ToString());
+                if (_documento.Righe[r].CodiceArticolo == "A-SP0001" && _documento.Sconto != 0)
+                {
+                    this.client.MMSCO_S[r + 1] = "-" + _documento.Sconto.ToString();
+                }
             }
             
             this.client.PUTMM(0);
+
+            numOrdine = this.client.MMNUM.ToString();
+            serieOrdine = this.client.MMSER.ToString();
+            datOrdine = this.client.MMDAT_S;
 
             //SE VA A BUON FINE ALLORA PROSEGUO ELABORAZIONE
             if (String.IsNullOrWhiteSpace(this.client.ERRMM_S))
@@ -181,11 +204,24 @@ public class MexalClient
 
                 this.client.PUTPN();
 
+                numPN = this.client.PNNPR.ToString();
+                prgPN = this.client.PNPRN.ToString();
+                dataPN = this.client.PNDRE_S.ToString();
+                seriePN = this.client.PNSPR.ToString();
+
                 if (String.IsNullOrWhiteSpace(this.client.ERRPN_S))
                 {
-
-                    message = "Ok!";
-                    return true;
+                    Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+                    if (lkp.SetCodiceOrdine(_documento.RiferimentoEsterno, numOrdine, serieOrdine, datOrdine, numPN, seriePN, prgPN, dataPN))
+                    {
+                        message = "Ok!";
+                        return true;
+                    }
+                    else
+                    {
+                        message = "Errore Registrazione Tabella Lookup";
+                        return false;
+                    }
                 }
                 else
                 {
@@ -193,7 +229,7 @@ public class MexalClient
                     return false;
                 }
 
-                this.client.mm
+                
 
             }
             else
@@ -296,22 +332,25 @@ public class MexalClient
         public Int32 Pagamento { get; set; }
         public Int32 Banca { get; set; }
 
+        public decimal Sconto { get; set; }
+
         public List<MexalDocumentoRiga> Righe { get; set; }
 
-        public void LoadFromOrdine(Bluetech.Pot.DataLayer.OrdineTestata _fattura)
+        public void LoadFromOrdine(Bluetech.Pot.DataLayer.OrdineTestata _ordine)
         {
-            this.Serie = _fattura.SerieOrdine;
-            this.Numero = Int32.Parse(_fattura.ProgressivoOrdine);
-            this.Data = (DateTime)_fattura.DataOrdine;
-            this.Controparte = _fattura.CodiceUnivocoControparte;
-            this.TotaleImponibile = _fattura.TotaleImponibile;
-            this.TotaleImposta = _fattura.TotaleImposte;
-            this.Pagamento = Int32.Parse(_fattura.TipoPagamento);
-            this.Banca = Int32.Parse(_fattura.BancaPagamento);
-            this.RiferimentoEsterno = _fattura.CodicePratica;
+            this.Serie = _ordine.SerieOrdine;
+            this.Numero = Int32.Parse(_ordine.ProgressivoOrdine);
+            this.Data = (DateTime)_ordine.DataOrdine;
+            this.Controparte = _ordine.CodiceUnivocoControparte;
+            this.TotaleImponibile = _ordine.TotaleImponibile;
+            this.TotaleImposta = _ordine.TotaleImposte;
+            this.Pagamento = Int32.Parse(_ordine.TipoPagamento);
+            this.Banca = Int32.Parse(_ordine.BancaPagamento);
+            this.RiferimentoEsterno = _ordine.CodicePratica;
+            this.Sconto = _ordine.ImportoSconto;
 
             List<MexalDocumentoRiga> righe = new List<MexalDocumentoRiga>();
-            foreach(var r in _fattura.Righe)
+            foreach(var r in _ordine.Righe)
             {
                 MexalDocumentoRiga ri = new MexalDocumentoRiga();
                 ri.TipoRiga = "R";

@@ -124,7 +124,7 @@ namespace Bluetech
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
-        public string SetOrdine(string token, string FatturaJson)
+        public string SetOrdine(string token, string OrdineJson)
         {
             string userAgent = HttpContext.Current.Request.UserAgent;
             string ip = HttpContext.Current.Request.UserHostAddress;
@@ -133,9 +133,9 @@ namespace Bluetech
 
             if (Pot.BusinessLayer.Authentication.IsTokenValid(token, ip, userAgent))
             {
-                Pot.DataLayer.OrdineTestata fattura = (Pot.DataLayer.OrdineTestata)new JavaScriptSerializer().Deserialize(FatturaJson, typeof(Pot.DataLayer.OrdineTestata));
+                Pot.DataLayer.OrdineWeb ordine = (Pot.DataLayer.OrdineWeb)new JavaScriptSerializer().Deserialize(OrdineJson, typeof(Pot.DataLayer.OrdineWeb));
 
-                result = Pot.BusinessLayer.Interface.ExecuteOrdine(fattura, out message);
+                result = Pot.BusinessLayer.Interface.ExecuteOrdine(ordine, out message);
             }
 
             else
@@ -183,20 +183,21 @@ namespace Bluetech
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string GetModelClienteJson()
         {
-            Pot.DataLayer.Cliente c = new Pot.DataLayer.Cliente();
-            c.CodiceFiscale = "CDCFSC16Z21H501Z";
-            c.CodiceUnivoco = "12345678";
-            c.Cognome = "Cognome";
-            c.Nome = "Nome";
-            c.RagioneSociale = "Ragione Sociale";
-            c.ComuneNascita = "Roma";
-            c.Nazionalita = "ITALIA";
-            c.DataNascita = DateTime.Now.Date;
-            c.Indirizzo = "Via di casa, 29";
-            c.Comune = "Ariccia";
-            c.Cap = "00100";
-            c.Provincia = "ROMA";
-            return new JavaScriptSerializer().Serialize(c);
+            Pot.DataLayer.Medico m = new Pot.DataLayer.Medico();
+            m.CodiceFiscale = "CDCFSC16Z21H" + new Random().Next(100, 999).ToString() + "Z";
+            m.PartitaIva = "123456" + new Random().Next(1000, 9999).ToString() + "1";
+            m.CodiceUnivoco = "ABC" + new Random().Next(1000, 9999).ToString() + "E";
+            m.Cognome = "Cognome Casuale" + new Random().Next(0, 9999).ToString();
+            m.Nome = "Nome Casuale" + new Random().Next(0, 9999).ToString();
+            m.RagioneSociale = "Ragione Sociale Casuale" + new Random().Next(0, 9999).ToString();
+            m.ComuneNascita = "Roma";
+            m.Nazionalita = "ITALIA";
+            m.DataNascita = DateTime.Now.Date;
+            m.Indirizzo = "Via di casa, 29";
+            m.Comune = "Ariccia";
+            m.Cap = "00100";
+            m.Provincia = "ROMA";
+            return new JavaScriptSerializer().Serialize(m);
         }
 
         [WebMethod]
@@ -205,12 +206,12 @@ namespace Bluetech
         public string GetModelMedicoJson()
         {
             Pot.DataLayer.Medico m = new Pot.DataLayer.Medico();
-            m.CodiceFiscale = "CDCFSC16Z21H501Z";
-            m.PartitaIva = "12345678901";
-            m.CodiceUnivoco = "12345678";
-            m.Cognome = "Cognome";
-            m.Nome = "Nome";
-            m.RagioneSociale = "Ragione Sociale";
+            m.CodiceFiscale = "CDCFSC16Z21H" + new Random().Next(100, 999).ToString()+"Z";
+            m.PartitaIva = "123456" + new Random().Next(1000, 9999).ToString() + "1";
+            m.CodiceUnivoco = "ABC" + new Random().Next(1000, 9999).ToString() + "E";
+            m.Cognome = "Cognome Casuale" + new Random().Next(0,9999).ToString();
+            m.Nome = "Nome Casuale" + new Random().Next(0, 9999).ToString();
+            m.RagioneSociale = "Ragione Sociale Casuale" + new Random().Next(0, 9999).ToString();
             m.ComuneNascita = "Roma";
             m.Nazionalita = "ITALIA";
             m.DataNascita = DateTime.Now.Date;
@@ -242,26 +243,19 @@ namespace Bluetech
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
-            OrdineTestata f = new OrdineTestata();
-            f.CodiceUnivocoControparte = "12345678";
-            f.ProgressivoOrdine = "123456";
-            f.SerieOrdine = "ABC";
-            f.DataOrdine = DateTime.Now.Date;
+            OrdineWeb f = new OrdineWeb();
+            f.CodiceUnivocoControparte = "ABCDEFGH";
+            f.CodiceUnivocoMedico = "QWERTYUI";
+            f.CodicePratica = "6SO" + new Random().Next(1000,9999).ToString()+ "W";
+            f.DataPratica = DateTime.Now.Date;
             f.TipoPagamento = "CC";
             f.BancaPagamento = "CODICEBANCA";
             f.TotaleFattura = 80;
-            f.TotaleImponibile = 75.16M;
-            f.TotaleImposte = 4.84M;
-            f.CodicePratica = "6SOM53KW";
+            f.ImportoMedico = 20;
+            f.ImportoSconto = 2;
+            f.IdConfigurazione = 1;
 
-            List<OrdineRiga> r = new List<OrdineRiga>();
-            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0001", DescrizioneRiga = "PRATICA NR. 6SOM53KW", Udm = "UR", Qta = 1, AliquotaIva = "22", PrezzoUnitario = 22 });
-            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0002", DescrizioneRiga = "DIRITTO DELLA MOTORIZZAZIONE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 11.98M });
-            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0003", DescrizioneRiga = "IMPOSTA DI BOLLO", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 17.78M });
-            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0004", DescrizioneRiga = "SPESE AMMINISTRATIVE", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 3.4M });
-            r.Add(new OrdineRiga() { CodiceArticolo = "A-SP0005", DescrizioneRiga = "ONORARIO DOTTORE MARCO ROSSI", Udm = "UR", Qta = 1, AliquotaIva = "VE", PrezzoUnitario = 20 });
 
-            f.Righe = r;
 
             return new JavaScriptSerializer().Serialize(f);
 
