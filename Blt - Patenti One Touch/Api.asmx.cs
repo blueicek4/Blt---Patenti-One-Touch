@@ -185,11 +185,11 @@ namespace Bluetech
         {
             Pot.DataLayer.Medico m = new Pot.DataLayer.Medico();
             m.CodiceFiscale = "CDCFSC16Z21H" + new Random().Next(100, 999).ToString() + "Z";
-            m.PartitaIva = "123456" + new Random().Next(1000, 9999).ToString() + "1";
+            //m.PartitaIva = "123456" + new Random().Next(1000, 9999).ToString() + "1";
             m.CodiceUnivoco = "ABC" + new Random().Next(1000, 9999).ToString() + "E";
             m.Cognome = "Cognome Casuale" + new Random().Next(0, 9999).ToString();
             m.Nome = "Nome Casuale" + new Random().Next(0, 9999).ToString();
-            m.RagioneSociale = "Ragione Sociale Casuale" + new Random().Next(0, 9999).ToString();
+            //m.RagioneSociale = "Ragione Sociale Casuale" + new Random().Next(0, 9999).ToString();
             m.ComuneNascita = "Roma";
             m.Nazionalita = "ITALIA";
             m.DataNascita = DateTime.Now.Date;
