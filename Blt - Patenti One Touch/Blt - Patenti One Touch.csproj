@@ -97,6 +97,7 @@
     <Content Include="Api.asmx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -111,12 +112,18 @@
     <None Include="Properties\PublishProfiles\X86 Debug.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\HTDebug\HTDebug\HTDebug.csproj">
+      <Project>{03be3628-55d0-4173-a44f-e8a1fe0bf4ae}</Project>
+      <Name>HTDebug</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MexalLayer\MexalLayer.csproj">
       <Project>{c3276822-9d8e-4c4e-80d5-9250ef0e9189}</Project>
       <Name>MexalLayer</Name>

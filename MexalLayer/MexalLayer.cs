@@ -22,7 +22,7 @@ public class MexalClient
         public DateTime DataTerminale { get; set; }
         public string Azienda { get; set; }
         public Int32 SottoAzienda { get; set; }
-
+        public MexalVisita Visita { get; set; }
         public MexalAnagrafica Cliente { get; set; }
         public MexalDocumentoTestata Documento { get; set; }
 
@@ -214,12 +214,13 @@ public class MexalClient
                     Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
                     if (lkp.SetCodiceOrdine(_documento.RiferimentoEsterno, numOrdine, serieOrdine, datOrdine, numPN, seriePN, prgPN, dataPN))
                     {
+                        lkp.SetPrimaNota(_documento.RiferimentoEsterno, numPN, seriePN, prgPN, dataPN);
                         message = "Ok!";
                         return true;
                     }
                     else
                     {
-                        message = "Errore Registrazione Tabella Lookup";
+                        message = "Ordine Salvato con Errore Registrazione Tabella Lookup";
                         return false;
                     }
                 }
@@ -240,7 +241,235 @@ public class MexalClient
 
         }
 
-    
+        public Boolean SetVisita(MexalVisita _visita, out string message)
+        {
+            message = String.Empty;
+            try
+            {
+                string numFT = String.Empty;
+                string serieFT = String.Empty;
+                string dataFT = String.Empty;
+                string numNC = String.Empty;
+                string serieNC = String.Empty;
+                string dataNC = String.Empty;
+                Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+                string ordine = "OC" + lkp.GetCodiceOrdine(_visita.CodicePratica);
+                this.client.GETMM_EXT(ordine);
+
+                switch (_visita.Esito)
+                {
+                    case "OK":
+                        //evado ordine e fatturo tutto
+                        this.client.MMSIG_S = "FT";
+                        this.client.MMSER = 1;
+                        this.client.MMNUM = 0;
+                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PUTMM(0);
+                        numFT = this.client.MMNUM.ToString();
+                        serieFT = this.client.MMSER.ToString();
+                        dataFT = this.client.MMDAT_S;
+                        //CANCELLO ORDINE ORIGINALE
+                        this.client.GETMM_EXT(ordine);
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            this.client.MMTPR_S[r] = string.Empty;
+                            this.client.MMART_S[r] = string.Empty;
+                            this.client.MMDES_S[r] = string.Empty;
+                            this.client.MMQTA[r] = 0;
+                            this.client.MMALI_S[r] = string.Empty;
+                            this.client.MMPRZ[r] = 0;
+                        }
+                        this.client.PUTMM(0);
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
+                        break;
+                    case "KO":
+                        //visita non passata, fatturo servizi e medico ma restituisco spese e imposta
+
+                        //evado ordine
+                        this.client.MMSIG_S = "FT";
+                        this.client.MMSER = 1;
+                        this.client.MMNUM = 0;
+                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            if (new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004" }.Any(s => s == this.client.MMART_S[r]))
+                            {
+                                this.client.MMTPR_S[r] = string.Empty;
+                                this.client.MMART_S[r] = string.Empty;
+                                this.client.MMDES_S[r] = string.Empty;
+                                this.client.MMQTA[r] = 0;
+                                this.client.MMALI_S[r] = string.Empty;
+                                this.client.MMPRZ[r] = 0;
+                            }
+                        }
+                        this.client.PUTMM(0);
+                        numFT = this.client.MMNUM.ToString();
+                        serieFT = this.client.MMSER.ToString();
+                        dataFT = this.client.MMDAT_S;
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+
+                        //cancello righe evase
+                        this.client.GETMM_EXT(ordine);
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            if (!new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004" }.Any(s => s == this.client.MMART_S[r]))
+                            {
+                                this.client.MMTPR_S[r] = string.Empty;
+                                this.client.MMART_S[r] = string.Empty;
+                                this.client.MMDES_S[r] = string.Empty;
+                                this.client.MMQTA[r] = 0;
+                                this.client.MMALI_S[r] = string.Empty;
+                                this.client.MMPRZ[r] = 0;
+                            }
+                        }
+                        this.client.PUTMM(0);
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+
+                        //emetto nota credito per righe non evase
+                        this.client.GETMM_EXT(ordine);
+                        this.client.MMSIG_S = "NC";
+                        this.client.MMSER = 1;
+                        this.client.MMNUM = 0;
+                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PUTMM(0);
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+                        numNC = this.client.MMNUM.ToString();
+                        serieNC = this.client.MMSER.ToString();
+                        dataNC = this.client.MMDAT_S;
+                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
+                        break;
+
+                    case "MANCATA":
+
+                        //evado ordine
+                        this.client.MMSIG_S = "FT";
+                        this.client.MMSER = 1;
+                        this.client.MMNUM = 0;
+                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            if (new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004", "A-SP0005" }.Any(s => s == this.client.MMART_S[r]))
+                            {
+                                this.client.MMTPR_S[r] = string.Empty;
+                                this.client.MMART_S[r] = string.Empty;
+                                this.client.MMDES_S[r] = string.Empty;
+                                this.client.MMQTA[r] = 0;
+                                this.client.MMALI_S[r] = string.Empty;
+                                this.client.MMPRZ[r] = 0;
+                            }
+                        }
+                        this.client.PUTMM(0);
+                        numFT = this.client.MMNUM.ToString();
+                        serieFT = this.client.MMSER.ToString();
+                        dataFT = this.client.MMDAT_S;
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+
+                        //cancello righe evase
+                        this.client.GETMM_EXT(ordine);
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            if (!new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004", "A-SP0005" }.Any(s => s == this.client.MMART_S[r]))
+                            {
+                                this.client.MMTPR_S[r] = string.Empty;
+                                this.client.MMART_S[r] = string.Empty;
+                                this.client.MMDES_S[r] = string.Empty;
+                                this.client.MMQTA[r] = 0;
+                                this.client.MMALI_S[r] = string.Empty;
+                                this.client.MMPRZ[r] = 0;
+                            }
+                        }
+                        this.client.PUTMM(0);
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+                        //emetto nota credito per righe non evase
+                        this.client.GETMM_EXT(ordine);
+                        this.client.MMSIG_S = "NC";
+                        this.client.MMSER = 1;
+                        this.client.MMNUM = 0;
+                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PUTMM(0);
+
+                        numNC = this.client.MMNUM.ToString();
+                        serieNC = this.client.MMSER.ToString();
+                        dataNC = this.client.MMDAT_S;
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+                        //CANCELLO ORDINE ORIGINALE
+                        this.client.GETMM_EXT(ordine);
+
+                        for (int r = 1; r <= this.client.NMM; r++)
+                        {
+                            this.client.MMTPR_S[r] = string.Empty;
+                            this.client.MMART_S[r] = string.Empty;
+                            this.client.MMDES_S[r] = string.Empty;
+                            this.client.MMQTA[r] = 0;
+                            this.client.MMALI_S[r] = string.Empty;
+                            this.client.MMPRZ[r] = 0;
+                        }
+                        this.client.PUTMM(0);
+
+                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
+                        {
+                            message = this.client.ERRMM_S;
+                            return false;
+                        }
+                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
+                        break;
+                    default:
+                        break;
+
+
+                }
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                message = e.Message;
+                return false;
+            }
+        }
+
+
+
 
     public void ResetVariabili(Int32 _struttura)
         {
@@ -344,8 +573,8 @@ public class MexalClient
             this.Controparte = _ordine.CodiceUnivocoControparte;
             this.TotaleImponibile = _ordine.TotaleImponibile;
             this.TotaleImposta = _ordine.TotaleImposte;
-            this.Pagamento = Int32.Parse(_ordine.TipoPagamento);
-            this.Banca = Int32.Parse(_ordine.BancaPagamento);
+            this.Pagamento = _ordine.TipoPagamento;
+            this.Banca = _ordine.BancaPagamento;
             this.RiferimentoEsterno = _ordine.CodicePratica;
             this.Sconto = _ordine.ImportoSconto;
 
@@ -376,5 +605,19 @@ public class MexalClient
         public string DescrizioneRiga { get; set; }
         public decimal Prezzo { get; set; }
 
+    }
+
+    public class MexalVisita
+    {
+        public string CodicePratica { get; set; }
+        public string CodiceMedico { get; set; }
+        public string Esito { get; set; }
+
+        public void LoadFromEsitoVisita( Bluetech.Pot.DataLayer.EsitoVisita _esito)
+        {
+            this.CodicePratica = _esito.CodicePratica;
+            this.CodiceMedico = _esito.CodiceUnivocoMedico;
+            this.Esito = _esito.Esito;
+        }
     }
 }

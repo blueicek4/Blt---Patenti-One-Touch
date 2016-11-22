@@ -53,8 +53,8 @@ namespace Bluetech.Pot.DataLayer
         public DateTime? DataPratica { get; set; }
         public string CodicePratica { get; set; }
         public decimal TotaleFattura { get; set; }
-        public string TipoPagamento { get; set; }
-        public string BancaPagamento { get; set; }
+        public int TipoPagamento { get; set; }
+        public int BancaPagamento { get; set; }
         public string CodiceUnivocoMedico { get; set; }
         public decimal ImportoMedico { get; set; }
         public decimal ImportoSconto { get; set; }
@@ -70,14 +70,14 @@ namespace Bluetech.Pot.DataLayer
         public decimal TotaleImponibile { get; set; }
         public decimal TotaleImposte { get; set; }
         public decimal TotaleFattura { get; set; }
-        public string TipoPagamento { get; set; }
-        public string BancaPagamento { get; set; }
+        public int TipoPagamento { get; set; }
+        public int BancaPagamento { get; set; }
         public string CodicePratica { get; set; }
         public List<OrdineRiga> Righe { get; set; }
         public string CodiceUnivocoMedico { get; set; }
         public decimal ImportoMedico { get; set; }
-
         public decimal ImportoSconto { get; set; }
+        public decimal ImportoNotaCredito { get; set; }
 
         public OrdineTestata()
         {
@@ -98,7 +98,10 @@ namespace Bluetech.Pot.DataLayer
                     o.SerieOrdine = "1";
                     o.TotaleFattura = _ordine.TotaleFattura;
                     o.CodicePratica = _ordine.CodicePratica;
-                    o.ImportoSconto = _ordine.ImportoSconto;
+                    if (_ordine.ImportoSconto > 0)
+                        o.ImportoSconto = _ordine.ImportoSconto;
+                    else if (_ordine.ImportoSconto < 0)
+                        o.ImportoNotaCredito = _ordine.ImportoSconto;
                     o.ProgressivoOrdine = "0";
                     o.TipoPagamento = _ordine.TipoPagamento;
                     o.BancaPagamento = _ordine.BancaPagamento;
@@ -130,9 +133,9 @@ namespace Bluetech.Pot.DataLayer
     }
     public class EsitoVisita
     {
-        public string ProgressivoFattura { get; set; }
+        public string CodicePratica { get; set; }
         public string SerieFattura { get; set; }
-        public DateTime DataFattura { get; set; }
+        public DateTime DataPratica { get; set; }
         public string Esito { get; set; }
         public string CodiceUnivocoMedico { get; set; }
     }
@@ -185,7 +188,7 @@ namespace Bluetech.Pot.DataLayer
 
                 dc.SubmitChanges();
 
-                return false;
+                return true;
             }
             catch (Exception e)
             {
@@ -204,6 +207,32 @@ namespace Bluetech.Pot.DataLayer
                 pr.SeriePrimaNotaMexal = _seriePN;
                 pr.ProgressivoPrimaNotaMexal = _numRegPN;
                 pr.DataPrimaNotaMexal = _dataPN;
+
+                //dc.Pratiche.InsertOnSubmit(pr);
+
+                dc.SubmitChanges();
+
+                return false;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        public Boolean SetEsito(string _pratica, string _numFT, string _serieFT, string _dataFT, string _numNC, string _serieNC, string _dataNC)
+        {
+            try
+            {
+                Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
+                Database.Pratiche pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
+
+                pr.CodicePratica = _pratica;
+                pr.NumeroFatturaMexal = _numFT;
+                pr.SerieFatturaMexal = _serieFT;
+                pr.DataFatturaMexal = _dataFT;
+                pr.NumeroNotaCreditoMexal = _numNC;
+                pr.SerieNotaCreditoMexal = _serieNC;
+                pr.DataNotaCreditoMexal = _dataNC;
 
                 //dc.Pratiche.InsertOnSubmit(pr);
 

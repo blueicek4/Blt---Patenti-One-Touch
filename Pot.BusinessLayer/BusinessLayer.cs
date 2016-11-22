@@ -149,7 +149,7 @@ namespace Bluetech.Pot.BusinessLayer
                 message = "Data Pratica Mancante o errata";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(_ordine.TipoPagamento))
+            if (_ordine.TipoPagamento == 0)
             {
                 message = "Tipo pagamento Mancante";
                 return false;
@@ -183,12 +183,12 @@ namespace Bluetech.Pot.BusinessLayer
 
         public static Boolean ExecuteVisita(EsitoVisita visita, out string message)
         {
-            if (string.IsNullOrWhiteSpace(visita.ProgressivoFattura))
+            if (string.IsNullOrWhiteSpace(visita.CodicePratica))
             {
                 message = "Progressivo Mancante";
                 return false;
             }
-            if (visita.DataFattura == DateTime.MinValue || visita.DataFattura == null)
+            if (visita.DataPratica == DateTime.MinValue || visita.DataPratica == null)
             {
                 message = "Data Fattura Mancante o errata";
                 return false;
@@ -204,7 +204,13 @@ namespace Bluetech.Pot.BusinessLayer
                 return false;
             }
 
-            // elaborazione verso mexal
+            Authentication.checkMexalClient();
+            Mexal.MexalClient mc = (Mexal.MexalClient)HttpContext.Current.Application["mxlClient"];
+
+            mc.Visita = new Mexal.MexalVisita();
+            mc.Visita.LoadFromEsitoVisita(visita);
+                                  
+            var result = mc.SetVisita(mc.Visita, out message);
             message = "OK!";
             return true;
         }

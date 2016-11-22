@@ -24,21 +24,28 @@ namespace Bluetech
     {
 
         [WebMethod]
-        public string HelloWorld()
-        {
-            return "Hello World";
-        }
-
-        [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string Login(string username, string password)
         {
-            string token;
-            string result;
-            Bluetech.Pot.BusinessLayer.Authentication.Login(username, password, out token, out result);
-            var message = new { Token = token, Result = result };
+            try
+            {
+                string token;
+                string result;
+                Bluetech.Pot.BusinessLayer.Authentication.Login(username, password, out token, out result);
+                var message = new { Token = token, Result = result };
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Login per {0} - {1}", username, result), System.Diagnostics.EventLogEntryType.Information, 0);
 
-            return new JavaScriptSerializer().Serialize(message);
+                return new JavaScriptSerializer().Serialize(message);
+            }
+            catch (Exception e)
+            {
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Errore Login per {0} - {1}", username, e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+
+                return e.Message;
+            }
+
 
         }
 
@@ -46,33 +53,50 @@ namespace Bluetech
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string SetArticolo(string token, string ArticoloJson)
         {
-            string userAgent = HttpContext.Current.Request.UserAgent;
-            string ip = HttpContext.Current.Request.UserHostAddress;
-            string message = String.Empty;
-            Boolean result = false;
-
-            if (Pot.BusinessLayer.Authentication.IsTokenValid(token, ip, userAgent))
+            try
             {
-                Pot.DataLayer.Articolo articolo = (Pot.DataLayer.Articolo)new JavaScriptSerializer().Deserialize(ArticoloJson, typeof(Pot.DataLayer.Articolo));
+                string userAgent = HttpContext.Current.Request.UserAgent;
+                string ip = HttpContext.Current.Request.UserHostAddress;
+                string message = String.Empty;
+                Boolean result = false;
 
-                result = Pot.BusinessLayer.Interface.ExecuteArticolo(articolo, out message);
-                System.Threading.Thread.Sleep(3 * 1000);
+                if (Pot.BusinessLayer.Authentication.IsTokenValid(token, ip, userAgent))
+                {
+                    Pot.DataLayer.Articolo articolo = (Pot.DataLayer.Articolo)new JavaScriptSerializer().Deserialize(ArticoloJson, typeof(Pot.DataLayer.Articolo));
+
+                    result = Pot.BusinessLayer.Interface.ExecuteArticolo(articolo, out message);
+                    System.Threading.Thread.Sleep(3 * 1000);
+                }
+
+                else
+                {
+                    message = "Token Expired!";
+                    result = false;
+                }
+
+                var response = new { Message = message, Result = result };
+
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Configurato Articolo {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+
+                return new JavaScriptSerializer().Serialize(response);
+            }
+            catch (Exception e)
+            {
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Errore Configurazione Articolo {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+
+                return e.Message;
             }
 
-            else
-            {
-                message = "Token Expired!";
-                result = false;
-            }
-
-            var response = new { Message = message, Result = result };
-            return new JavaScriptSerializer().Serialize(response);
         }
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string SetCliente(string token, string ClienteJson)
         {
+            try
+            {
             string userAgent = HttpContext.Current.Request.UserAgent;
             string ip = HttpContext.Current.Request.UserHostAddress;
             string message = String.Empty;
@@ -92,13 +116,27 @@ namespace Bluetech
             }
 
             var response = new { Message = message, Result = result };
-            return new JavaScriptSerializer().Serialize(response);
+
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Configurato Cliente {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+
+                return new JavaScriptSerializer().Serialize(response);
+            }
+            catch (Exception e)
+            {
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Errore Configurazione Cliente - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+
+                return e.Message;
+            }
         }
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string SetMedico(string token, string MedicoJson)
         {
+            try
+            { 
             string userAgent = HttpContext.Current.Request.UserAgent;
             string ip = HttpContext.Current.Request.UserHostAddress;
             string message = String.Empty;
@@ -119,13 +157,27 @@ namespace Bluetech
             }
 
             var response = new { Message = message, Result = result };
-            return new JavaScriptSerializer().Serialize(response);
+
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Configurato Medico {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+
+                return new JavaScriptSerializer().Serialize(response);
+            }
+            catch (Exception e)
+            {
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Errore Configurazione Medico - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+
+                return e.Message;
+            }
         }
 
         [WebMethod]
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string SetOrdine(string token, string OrdineJson)
         {
+            try
+            {            
             string userAgent = HttpContext.Current.Request.UserAgent;
             string ip = HttpContext.Current.Request.UserHostAddress;
             string message = String.Empty;
@@ -145,7 +197,20 @@ namespace Bluetech
             }
 
             var response = new { Message = message, Result = result };
-            return new JavaScriptSerializer().Serialize(response);
+
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Inserito Ordine {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+
+                return new JavaScriptSerializer().Serialize(response);
+            }
+            catch (Exception e)
+            {
+                HTDebug.Debug dbg = new HTDebug.Debug();
+                dbg.DebugLine(String.Format("Errore Inserimento Ordine - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+
+                return e.Message;
+            }
+
         }
 
         [WebMethod]
@@ -248,8 +313,8 @@ namespace Bluetech
             f.CodiceUnivocoMedico = "QWERTYUI";
             f.CodicePratica = "6SO" + new Random().Next(1000,9999).ToString()+ "W";
             f.DataPratica = DateTime.Now.Date;
-            f.TipoPagamento = "CC";
-            f.BancaPagamento = "CODICEBANCA";
+            f.TipoPagamento = 1;
+            f.BancaPagamento = 1;
             f.TotaleFattura = 80;
             f.ImportoMedico = 20;
             f.ImportoSconto = 2;
@@ -266,11 +331,10 @@ namespace Bluetech
         public string GetModelEsitoVisitaJson()
         {
             EsitoVisita e = new EsitoVisita();
-            e.ProgressivoFattura = "123456";
-            e.SerieFattura = "ABC";
-            e.DataFattura = DateTime.Now.Date;
+            e.CodicePratica = "123456AB";
+            e.DataPratica = DateTime.Now.Date;
             e.CodiceUnivocoMedico = "12345678";
-            e.Esito = "OK";
+            e.Esito = "OK/KO/ASSENTE";
 
             return new JavaScriptSerializer().Serialize(e);
         }
