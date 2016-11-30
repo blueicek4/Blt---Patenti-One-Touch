@@ -20,6 +20,8 @@ namespace Bluetech.Pot.DataLayer
         public string Comune { get; set; }
         public string Provincia { get; set; }
         public string Nazione { get; set; }
+        public string Email { get; set; }
+        public string Iban { get; set; }
     }
     public class Medico
     {
@@ -37,6 +39,7 @@ namespace Bluetech.Pot.DataLayer
         public string Comune { get; set; }
         public string Provincia { get; set; }
         public string Nazione { get; set; }
+        public string Iban { get; set; }
 
     }
     public class Articolo
@@ -95,7 +98,7 @@ namespace Bluetech.Pot.DataLayer
                     o.CodiceUnivocoControparte = _ordine.CodiceUnivocoControparte;
                     o.CodiceUnivocoMedico = _ordine.CodiceUnivocoMedico;
                     o.DataOrdine = _ordine.DataPratica;
-                    o.SerieOrdine = "1";
+                    o.SerieOrdine = System.Configuration.ConfigurationManager.AppSettings["Sezionale"];
                     o.TotaleFattura = _ordine.TotaleFattura;
                     o.CodicePratica = _ordine.CodicePratica;
                     if (_ordine.ImportoSconto > 0)
@@ -107,10 +110,10 @@ namespace Bluetech.Pot.DataLayer
                     o.BancaPagamento = _ordine.BancaPagamento;
 
                     o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0001", DescrizioneRiga = "PRATICA NR. " + o.CodicePratica, AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
-                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0002", DescrizioneRiga = "DIRITTO DELLA MOTORIZZAZIONE", AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
-                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0003", DescrizioneRiga = "IMPOSTA DI BOLLO", AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
-                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0004", DescrizioneRiga = "SPESE AMMINISTRATIVE", AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
-                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0005", DescrizioneRiga = "ONORARIO DOTTORE" + o.CodiceUnivocoMedico, AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
+                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0002", DescrizioneRiga = "DIRITTO DELLA MOTORIZZAZIONE", AliquotaIva = "S15", Qta = 1, PrezzoUnitario = 11.98M, Udm = "UR" });
+                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0003", DescrizioneRiga = "IMPOSTA DI BOLLO", AliquotaIva = "S15", Qta = 1, PrezzoUnitario = 17.78M, Udm = "UR" });
+                    o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0004", DescrizioneRiga = "SPESE AMMINISTRATIVE", AliquotaIva = "S15", Qta = 1, PrezzoUnitario = 3.4M, Udm = "UR" });
+                    //o.Righe.Add(new OrdineRiga() { CodiceArticolo = "A-SP0005", DescrizioneRiga = "ONORARIO DOTTORE" + o.CodiceUnivocoMedico, AliquotaIva = "22", Qta = 1, PrezzoUnitario = 22, Udm = "UR" });
                     
 
                     break;
@@ -142,26 +145,77 @@ namespace Bluetech.Pot.DataLayer
 
     public class GestioneLookUp
     {
-        public string GetCodiceOrdine(string _pratica)
+        public Int32 GetProgressivo(string _contatore)
+        {
+            Int32 res = 0;
+
+            Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
+
+            if (dc.Progressivi.Where(p => p.NomeContatore == _contatore).Count() > 0)
+            {
+                var result = dc.Progressivi.Where(p => p.NomeContatore == _contatore).First();//.Select(p => p.Progressivo).First();
+                if (result.Progressivo >= Int32.MaxValue)
+                    result.Progressivo = 0;
+                else
+                    result.Progressivo++;
+
+                res = Int32.Parse(result.Progressivo.ToString());
+
+                dc.SubmitChanges();
+            }
+            else
+            {
+                Database.Progressivi p = new Database.Progressivi();
+                p.NomeContatore = _contatore;
+                p.Progressivo = 1;
+                res = 1;
+                dc.Progressivi.InsertOnSubmit(p);
+                dc.SubmitChanges();
+            }
+
+
+            return res;
+        }
+        public string GetCodicePratica(string _pratica)
         {
             Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-            return dc.Pratiche.Where(p => p.CodicePratica == _pratica).Select(p => p.CodicePratica).First();
+            if (dc.Pratiche.Where(p => p.CodicePratica == _pratica).Count() > 0)
+                return dc.Pratiche.Where(p => p.CodicePratica == _pratica).Select(p => p.CodicePratica).First();
+            else
+                return String.Empty;
         }
 
-        public Boolean SetCodiceOrdine(string _pratica, string _numOrdine, string _serieOrdine, string _dataOrdine)
+        public Database.Pratiche GetPratica(string _codice)
+        {
+            Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
+            if (dc.Pratiche.Where(p => p.CodicePratica == _codice).Count() > 0)
+                return dc.Pratiche.Where(p => p.CodicePratica == _codice).First();
+            else
+                return null;
+
+        }
+
+        public Boolean SetPratica(string _pratica, string _cliente, string _medico, int _pag, int _sconto, int _importoMedico, int _importo, string _numFattura, string _dataFattura, string _numPag)
         {
             try
             {
                 Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
                 Database.Pratiche pr = new Database.Pratiche();
                 pr.CodicePratica = _pratica;
-                pr.NumeroOrdineMexal = _numOrdine;
-                pr.SerieOrdineMexal = _serieOrdine;
-                pr.DataOrdineMexal = _dataOrdine;
+                pr.CodiceCliente = _cliente;
+                pr.CodiceMedico = _medico;
+                pr.TipoPagamento = _pag;
+                pr.NumeroFattura = _numFattura;
+                pr.DataFattura = _dataFattura;
+                pr.Importo = _importo;
+                pr.ImportoMedico = _importoMedico;
+                pr.ImportoSconto = _sconto;
+                pr.NumeroPagamento = _numPag;
+                
                 dc.Pratiche.InsertOnSubmit(pr);
                 dc.SubmitChanges();
 
-                return false;
+                return true;
             }
             catch (Exception e)
             {
@@ -169,22 +223,20 @@ namespace Bluetech.Pot.DataLayer
             }
         }
 
-        public Boolean SetCodiceOrdine(string _pratica, string _numOrdine, string _serieOrdine, string _dataOrdine, string _numPN, string _seriePN, string _numRegPN, string _dataPN)
+        public Boolean SetEsito(string _pratica, string _esito, string _medico, string _numPag, string _dataPag, string _numNC, string _dataNC, string _numStorno, string _dataStorno)
         {
             try
             {
                 Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-                Database.Pratiche pr = new Database.Pratiche();
-                pr.CodicePratica = _pratica;
-                pr.NumeroOrdineMexal = _numOrdine;
-                pr.SerieOrdineMexal = _serieOrdine;
-                pr.DataOrdineMexal = _dataOrdine;
-                pr.NumeroPrimaNotaMexal = _numPN;
-                pr.SeriePrimaNotaMexal = _seriePN;
-                pr.ProgressivoPrimaNotaMexal = _numRegPN;
-                pr.DataPrimaNotaMexal = _dataPN;
-
-                dc.Pratiche.InsertOnSubmit(pr);
+                var pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
+                pr.Esito = _esito;
+                pr.CodiceMedicoEsito = _medico;
+                pr.NumeroNotaCredito = _numNC;
+                pr.DataNotaCredito = _dataNC;
+                pr.NumeroStorno = _numStorno;
+                pr.DataStorno = _dataStorno;
+                pr.NumeroPagamentoMedico = _numPag;
+                pr.DataPagamentoMedico = _dataPag;
 
                 dc.SubmitChanges();
 
@@ -195,88 +247,13 @@ namespace Bluetech.Pot.DataLayer
                 return false;
             }
         }
-        public Boolean SetPrimaNota(string _pratica, string _numPN, string _seriePN, string _numRegPN, string _dataPN)
-        {
-            try
-            {
-                Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-                Database.Pratiche pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
-
-                pr.CodicePratica = _pratica;
-                pr.NumeroPrimaNotaMexal = _numPN;
-                pr.SeriePrimaNotaMexal = _seriePN;
-                pr.ProgressivoPrimaNotaMexal = _numRegPN;
-                pr.DataPrimaNotaMexal = _dataPN;
-
-                //dc.Pratiche.InsertOnSubmit(pr);
-
-                dc.SubmitChanges();
-
-                return false;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-        public Boolean SetEsito(string _pratica, string _numFT, string _serieFT, string _dataFT, string _numNC, string _serieNC, string _dataNC)
-        {
-            try
-            {
-                Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-                Database.Pratiche pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
-
-                pr.CodicePratica = _pratica;
-                pr.NumeroFatturaMexal = _numFT;
-                pr.SerieFatturaMexal = _serieFT;
-                pr.DataFatturaMexal = _dataFT;
-                pr.NumeroNotaCreditoMexal = _numNC;
-                pr.SerieNotaCreditoMexal = _serieNC;
-                pr.DataNotaCreditoMexal = _dataNC;
-
-                //dc.Pratiche.InsertOnSubmit(pr);
-
-                dc.SubmitChanges();
-
-                return false;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-
-        public List<string> GetOrdine (string _pratica)
-        {
-            List<string> res = new List<string>();
-            Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-            Database.Pratiche pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
-
-            res.Add(pr.NumeroOrdineMexal);
-            res.Add(pr.SerieOrdineMexal);
-            res.Add(pr.DataOrdineMexal);
-
-            return res;
-        }
-
-        public List<string> GetPrimaNota(string _pratica)
-        {
-            List<string> res = new List<string>();
-            Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-            Database.Pratiche pr = dc.Pratiche.Where(p => p.CodicePratica == _pratica).First();
-
-            res.Add(pr.NumeroPrimaNotaMexal);
-            res.Add(pr.SeriePrimaNotaMexal);
-            res.Add(pr.DataPrimaNotaMexal);
-            res.Add(pr.ProgressivoPrimaNotaMexal);
-
-            return res;
-        }
 
         public string GetAnagrafica(string _codiceEsterno)
         {
             Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
-            string res = dc.Anagrafiche.Where(a => a.CodiceEsterno == _codiceEsterno).Select(a=>a.CodiceMexal).First();
+            string res = String.Empty;
+            if(dc.Anagrafiche.Any(a=>a.CodiceEsterno == _codiceEsterno))
+                res = dc.Anagrafiche.Where(a => a.CodiceEsterno == _codiceEsterno).Select(a=>a.CodiceMexal).First();
             return res;
         }
 
@@ -284,13 +261,20 @@ namespace Bluetech.Pot.DataLayer
         {
             try
             {
+                bool insert = true;
                 Database.LookupDatabaseDataContext dc = new Database.LookupDatabaseDataContext();
                 Database.Anagrafiche an = new Database.Anagrafiche();
+                if (dc.Anagrafiche.Any(a => a.CodiceEsterno == _codiceEsterno))
+                {
+                    insert = false;
+                    an = dc.Anagrafiche.Where(a => a.CodiceEsterno == _codiceEsterno).First();
+                }
                 an.CodiceEsterno = _codiceEsterno;
                 an.CodiceMexal = _codiceMexal;
                 an.IsMedico = _isMedico;
 
-                dc.Anagrafiche.InsertOnSubmit(an);
+                if (insert)
+                    dc.Anagrafiche.InsertOnSubmit(an);
                 dc.SubmitChanges();
 
                 return true;

@@ -172,7 +172,7 @@ namespace Bluetech.Pot.BusinessLayer
 
             mc.Documento = new Mexal.MexalDocumentoTestata();
             mc.Documento.LoadFromOrdine(ordine);
-            mc.Documento.Sigla = "OC";
+            mc.Documento.Sigla = System.Configuration.ConfigurationManager.AppSettings["TipoDocAperturaPratica"];
             mc.Documento.Magazzino = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Magazzino"]);
             mc.Documento.Controparte = lkp.GetAnagrafica(_ordine.CodiceUnivocoControparte);          
             var result = mc.SetOrdine(mc.Documento, lkp.GetAnagrafica(_ordine.CodiceUnivocoMedico), _ordine.ImportoMedico, out message);
@@ -211,8 +211,8 @@ namespace Bluetech.Pot.BusinessLayer
             mc.Visita.LoadFromEsitoVisita(visita);
                                   
             var result = mc.SetVisita(mc.Visita, out message);
-            message = "OK!";
-            return true;
+            //message = "OK!";
+            return result;
         }
 
         public static Boolean ExecuteCliente(Cliente cliente, out string message)
@@ -235,16 +235,6 @@ namespace Bluetech.Pot.BusinessLayer
             if (string.IsNullOrWhiteSpace(cliente.CodiceFiscale))
             {
                 message = "Codice Fiscale mancante";
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(cliente.ComuneNascita))
-            {
-                message = "Comune di nascita mancante";
-                return false;
-            }
-            if (cliente.DataNascita == null || cliente.DataNascita == DateTime.MinValue)
-            {
-                message = "Data di nascita mancante o errata";
                 return false;
             }
 
@@ -285,16 +275,6 @@ namespace Bluetech.Pot.BusinessLayer
                 message = "Codice Fiscale e Partita iva mancanti, specificare almeno uno dei due valori";
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(medico.ComuneNascita))
-            {
-                message = "Comune di nascita mancante";
-                return false;
-            }
-            if (medico.DataNascita == null || medico.DataNascita == DateTime.MinValue)
-            {
-                message = "Data di nascita mancante o errata";
-                return false;
-            }
 
             // elaborazione verso mexal
             Authentication.checkMexalClient();
@@ -303,9 +283,10 @@ namespace Bluetech.Pot.BusinessLayer
             mc.Cliente = new Mexal.MexalAnagrafica();
             mc.Cliente.LoadFromMedico(medico);
             mc.Cliente.Mastro = System.Configuration.ConfigurationManager.AppSettings["MastroMedico"];
-            mc.SetAnagrafica(mc.Cliente, out message, true);
+            var result = mc.SetAnagrafica(mc.Cliente, out message, true);
             //message = "OK!";
-            return true;
+            return result;
+            
         }
 
         public static Boolean ExecuteArticolo(Articolo articolo, out string message)

@@ -30,12 +30,15 @@ namespace Bluetech.Database
 		
     #region Definizioni metodo Extensibility
     partial void OnCreated();
-    partial void InsertPratiche(Pratiche instance);
-    partial void UpdatePratiche(Pratiche instance);
-    partial void DeletePratiche(Pratiche instance);
     partial void InsertAnagrafiche(Anagrafiche instance);
     partial void UpdateAnagrafiche(Anagrafiche instance);
     partial void DeleteAnagrafiche(Anagrafiche instance);
+    partial void InsertProgressivi(Progressivi instance);
+    partial void UpdateProgressivi(Progressivi instance);
+    partial void DeleteProgressivi(Progressivi instance);
+    partial void InsertPratiche(Pratiche instance);
+    partial void UpdatePratiche(Pratiche instance);
+    partial void DeletePratiche(Pratiche instance);
     #endregion
 		
 		public LookupDatabaseDataContext() : 
@@ -68,14 +71,6 @@ namespace Bluetech.Database
 			OnCreated();
 		}
 		
-		public System.Data.Linq.Table<Pratiche> Pratiche
-		{
-			get
-			{
-				return this.GetTable<Pratiche>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Anagrafiche> Anagrafiche
 		{
 			get
@@ -83,426 +78,20 @@ namespace Bluetech.Database
 				return this.GetTable<Anagrafiche>();
 			}
 		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Pratiche")]
-	public partial class Pratiche : INotifyPropertyChanging, INotifyPropertyChanged
-	{
 		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private string _CodicePratica;
-		
-		private string _NumeroOrdineMexal;
-		
-		private string _SerieOrdineMexal;
-		
-		private string _DataOrdineMexal;
-		
-		private string _NumeroClienteMexal;
-		
-		private string _NumeroMedicoMexal;
-		
-		private string _ProgressivoPrimaNotaMexal;
-		
-		private string _NumeroPrimaNotaMexal;
-		
-		private string _SeriePrimaNotaMexal;
-		
-		private string _DataPrimaNotaMexal;
-		
-		private string _NumeroFatturaMexal;
-		
-		private string _SerieFatturaMexal;
-		
-		private string _DataFatturaMexal;
-		
-		private string _NumeroNotaCreditoMexal;
-		
-		private string _SerieNotaCreditoMexal;
-		
-		private string _DataNotaCreditoMexal;
-		
-    #region Definizioni metodo Extensibility
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnCodicePraticaChanging(string value);
-    partial void OnCodicePraticaChanged();
-    partial void OnNumeroOrdineMexalChanging(string value);
-    partial void OnNumeroOrdineMexalChanged();
-    partial void OnSerieOrdineMexalChanging(string value);
-    partial void OnSerieOrdineMexalChanged();
-    partial void OnDataOrdineMexalChanging(string value);
-    partial void OnDataOrdineMexalChanged();
-    partial void OnNumeroClienteMexalChanging(string value);
-    partial void OnNumeroClienteMexalChanged();
-    partial void OnNumeroMedicoMexalChanging(string value);
-    partial void OnNumeroMedicoMexalChanged();
-    partial void OnProgressivoPrimaNotaMexalChanging(string value);
-    partial void OnProgressivoPrimaNotaMexalChanged();
-    partial void OnNumeroPrimaNotaMexalChanging(string value);
-    partial void OnNumeroPrimaNotaMexalChanged();
-    partial void OnSeriePrimaNotaMexalChanging(string value);
-    partial void OnSeriePrimaNotaMexalChanged();
-    partial void OnDataPrimaNotaMexalChanging(string value);
-    partial void OnDataPrimaNotaMexalChanged();
-    partial void OnNumeroFatturaMexalChanging(string value);
-    partial void OnNumeroFatturaMexalChanged();
-    partial void OnSerieFatturaMexalChanging(string value);
-    partial void OnSerieFatturaMexalChanged();
-    partial void OnDataFatturaMexalChanging(string value);
-    partial void OnDataFatturaMexalChanged();
-    partial void OnNumeroNotaCreditoMexalChanging(string value);
-    partial void OnNumeroNotaCreditoMexalChanged();
-    partial void OnSerieNotaCreditoMexalChanging(string value);
-    partial void OnSerieNotaCreditoMexalChanged();
-    partial void OnDataNotaCreditoMexalChanging(string value);
-    partial void OnDataNotaCreditoMexalChanged();
-    #endregion
-		
-		public Pratiche()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CodicePratica", DbType="VarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
-		public string CodicePratica
+		public System.Data.Linq.Table<Progressivi> Progressivi
 		{
 			get
 			{
-				return this._CodicePratica;
-			}
-			set
-			{
-				if ((this._CodicePratica != value))
-				{
-					this.OnCodicePraticaChanging(value);
-					this.SendPropertyChanging();
-					this._CodicePratica = value;
-					this.SendPropertyChanged("CodicePratica");
-					this.OnCodicePraticaChanged();
-				}
+				return this.GetTable<Progressivi>();
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroOrdineMexal", DbType="VarChar(50)")]
-		public string NumeroOrdineMexal
+		public System.Data.Linq.Table<Pratiche> Pratiche
 		{
 			get
 			{
-				return this._NumeroOrdineMexal;
-			}
-			set
-			{
-				if ((this._NumeroOrdineMexal != value))
-				{
-					this.OnNumeroOrdineMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroOrdineMexal = value;
-					this.SendPropertyChanged("NumeroOrdineMexal");
-					this.OnNumeroOrdineMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SerieOrdineMexal", DbType="VarChar(50)")]
-		public string SerieOrdineMexal
-		{
-			get
-			{
-				return this._SerieOrdineMexal;
-			}
-			set
-			{
-				if ((this._SerieOrdineMexal != value))
-				{
-					this.OnSerieOrdineMexalChanging(value);
-					this.SendPropertyChanging();
-					this._SerieOrdineMexal = value;
-					this.SendPropertyChanged("SerieOrdineMexal");
-					this.OnSerieOrdineMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataOrdineMexal", DbType="VarChar(50)")]
-		public string DataOrdineMexal
-		{
-			get
-			{
-				return this._DataOrdineMexal;
-			}
-			set
-			{
-				if ((this._DataOrdineMexal != value))
-				{
-					this.OnDataOrdineMexalChanging(value);
-					this.SendPropertyChanging();
-					this._DataOrdineMexal = value;
-					this.SendPropertyChanged("DataOrdineMexal");
-					this.OnDataOrdineMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroClienteMexal", DbType="VarChar(50)")]
-		public string NumeroClienteMexal
-		{
-			get
-			{
-				return this._NumeroClienteMexal;
-			}
-			set
-			{
-				if ((this._NumeroClienteMexal != value))
-				{
-					this.OnNumeroClienteMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroClienteMexal = value;
-					this.SendPropertyChanged("NumeroClienteMexal");
-					this.OnNumeroClienteMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroMedicoMexal", DbType="VarChar(50)")]
-		public string NumeroMedicoMexal
-		{
-			get
-			{
-				return this._NumeroMedicoMexal;
-			}
-			set
-			{
-				if ((this._NumeroMedicoMexal != value))
-				{
-					this.OnNumeroMedicoMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroMedicoMexal = value;
-					this.SendPropertyChanged("NumeroMedicoMexal");
-					this.OnNumeroMedicoMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProgressivoPrimaNotaMexal", DbType="VarChar(50)")]
-		public string ProgressivoPrimaNotaMexal
-		{
-			get
-			{
-				return this._ProgressivoPrimaNotaMexal;
-			}
-			set
-			{
-				if ((this._ProgressivoPrimaNotaMexal != value))
-				{
-					this.OnProgressivoPrimaNotaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._ProgressivoPrimaNotaMexal = value;
-					this.SendPropertyChanged("ProgressivoPrimaNotaMexal");
-					this.OnProgressivoPrimaNotaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroPrimaNotaMexal", DbType="VarChar(50)")]
-		public string NumeroPrimaNotaMexal
-		{
-			get
-			{
-				return this._NumeroPrimaNotaMexal;
-			}
-			set
-			{
-				if ((this._NumeroPrimaNotaMexal != value))
-				{
-					this.OnNumeroPrimaNotaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroPrimaNotaMexal = value;
-					this.SendPropertyChanged("NumeroPrimaNotaMexal");
-					this.OnNumeroPrimaNotaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SeriePrimaNotaMexal", DbType="VarChar(50)")]
-		public string SeriePrimaNotaMexal
-		{
-			get
-			{
-				return this._SeriePrimaNotaMexal;
-			}
-			set
-			{
-				if ((this._SeriePrimaNotaMexal != value))
-				{
-					this.OnSeriePrimaNotaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._SeriePrimaNotaMexal = value;
-					this.SendPropertyChanged("SeriePrimaNotaMexal");
-					this.OnSeriePrimaNotaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataPrimaNotaMexal", DbType="VarChar(50)")]
-		public string DataPrimaNotaMexal
-		{
-			get
-			{
-				return this._DataPrimaNotaMexal;
-			}
-			set
-			{
-				if ((this._DataPrimaNotaMexal != value))
-				{
-					this.OnDataPrimaNotaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._DataPrimaNotaMexal = value;
-					this.SendPropertyChanged("DataPrimaNotaMexal");
-					this.OnDataPrimaNotaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroFatturaMexal", DbType="VarChar(50)")]
-		public string NumeroFatturaMexal
-		{
-			get
-			{
-				return this._NumeroFatturaMexal;
-			}
-			set
-			{
-				if ((this._NumeroFatturaMexal != value))
-				{
-					this.OnNumeroFatturaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroFatturaMexal = value;
-					this.SendPropertyChanged("NumeroFatturaMexal");
-					this.OnNumeroFatturaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SerieFatturaMexal", DbType="VarChar(50)")]
-		public string SerieFatturaMexal
-		{
-			get
-			{
-				return this._SerieFatturaMexal;
-			}
-			set
-			{
-				if ((this._SerieFatturaMexal != value))
-				{
-					this.OnSerieFatturaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._SerieFatturaMexal = value;
-					this.SendPropertyChanged("SerieFatturaMexal");
-					this.OnSerieFatturaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataFatturaMexal", DbType="VarChar(50)")]
-		public string DataFatturaMexal
-		{
-			get
-			{
-				return this._DataFatturaMexal;
-			}
-			set
-			{
-				if ((this._DataFatturaMexal != value))
-				{
-					this.OnDataFatturaMexalChanging(value);
-					this.SendPropertyChanging();
-					this._DataFatturaMexal = value;
-					this.SendPropertyChanged("DataFatturaMexal");
-					this.OnDataFatturaMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroNotaCreditoMexal", DbType="VarChar(50)")]
-		public string NumeroNotaCreditoMexal
-		{
-			get
-			{
-				return this._NumeroNotaCreditoMexal;
-			}
-			set
-			{
-				if ((this._NumeroNotaCreditoMexal != value))
-				{
-					this.OnNumeroNotaCreditoMexalChanging(value);
-					this.SendPropertyChanging();
-					this._NumeroNotaCreditoMexal = value;
-					this.SendPropertyChanged("NumeroNotaCreditoMexal");
-					this.OnNumeroNotaCreditoMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SerieNotaCreditoMexal", DbType="VarChar(50)")]
-		public string SerieNotaCreditoMexal
-		{
-			get
-			{
-				return this._SerieNotaCreditoMexal;
-			}
-			set
-			{
-				if ((this._SerieNotaCreditoMexal != value))
-				{
-					this.OnSerieNotaCreditoMexalChanging(value);
-					this.SendPropertyChanging();
-					this._SerieNotaCreditoMexal = value;
-					this.SendPropertyChanged("SerieNotaCreditoMexal");
-					this.OnSerieNotaCreditoMexalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataNotaCreditoMexal", DbType="VarChar(50)")]
-		public string DataNotaCreditoMexal
-		{
-			get
-			{
-				return this._DataNotaCreditoMexal;
-			}
-			set
-			{
-				if ((this._DataNotaCreditoMexal != value))
-				{
-					this.OnDataNotaCreditoMexalChanging(value);
-					this.SendPropertyChanging();
-					this._DataNotaCreditoMexal = value;
-					this.SendPropertyChanged("DataNotaCreditoMexal");
-					this.OnDataNotaCreditoMexalChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+				return this.GetTable<Pratiche>();
 			}
 		}
 	}
@@ -592,6 +181,562 @@ namespace Bluetech.Database
 					this._IsMedico = value;
 					this.SendPropertyChanged("IsMedico");
 					this.OnIsMedicoChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Progressivi")]
+	public partial class Progressivi : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _NomeContatore;
+		
+		private long _Progressivo;
+		
+    #region Definizioni metodo Extensibility
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnNomeContatoreChanging(string value);
+    partial void OnNomeContatoreChanged();
+    partial void OnProgressivoChanging(long value);
+    partial void OnProgressivoChanged();
+    #endregion
+		
+		public Progressivi()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NomeContatore", DbType="VarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		public string NomeContatore
+		{
+			get
+			{
+				return this._NomeContatore;
+			}
+			set
+			{
+				if ((this._NomeContatore != value))
+				{
+					this.OnNomeContatoreChanging(value);
+					this.SendPropertyChanging();
+					this._NomeContatore = value;
+					this.SendPropertyChanged("NomeContatore");
+					this.OnNomeContatoreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Progressivo", DbType="BigInt NOT NULL")]
+		public long Progressivo
+		{
+			get
+			{
+				return this._Progressivo;
+			}
+			set
+			{
+				if ((this._Progressivo != value))
+				{
+					this.OnProgressivoChanging(value);
+					this.SendPropertyChanging();
+					this._Progressivo = value;
+					this.SendPropertyChanged("Progressivo");
+					this.OnProgressivoChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Pratiche")]
+	public partial class Pratiche : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _CodicePratica;
+		
+		private string _CodiceCliente;
+		
+		private string _CodiceMedico;
+		
+		private string _CodiceMedicoEsito;
+		
+		private string _Esito;
+		
+		private System.Nullable<int> _TipoPagamento;
+		
+		private System.Nullable<int> _ImportoMedico;
+		
+		private System.Nullable<int> _ImportoSconto;
+		
+		private System.Nullable<int> _Importo;
+		
+		private string _NumeroFattura;
+		
+		private string _DataFattura;
+		
+		private string _NumeroPagamento;
+		
+		private string _NumeroPagamentoMedico;
+		
+		private string _DataPagamentoMedico;
+		
+		private string _NumeroNotaCredito;
+		
+		private string _DataNotaCredito;
+		
+		private string _NumeroStorno;
+		
+		private string _DataStorno;
+		
+    #region Definizioni metodo Extensibility
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnCodicePraticaChanging(string value);
+    partial void OnCodicePraticaChanged();
+    partial void OnCodiceClienteChanging(string value);
+    partial void OnCodiceClienteChanged();
+    partial void OnCodiceMedicoChanging(string value);
+    partial void OnCodiceMedicoChanged();
+    partial void OnCodiceMedicoEsitoChanging(string value);
+    partial void OnCodiceMedicoEsitoChanged();
+    partial void OnEsitoChanging(string value);
+    partial void OnEsitoChanged();
+    partial void OnTipoPagamentoChanging(System.Nullable<int> value);
+    partial void OnTipoPagamentoChanged();
+    partial void OnImportoMedicoChanging(System.Nullable<int> value);
+    partial void OnImportoMedicoChanged();
+    partial void OnImportoScontoChanging(System.Nullable<int> value);
+    partial void OnImportoScontoChanged();
+    partial void OnImportoChanging(System.Nullable<int> value);
+    partial void OnImportoChanged();
+    partial void OnNumeroFatturaChanging(string value);
+    partial void OnNumeroFatturaChanged();
+    partial void OnDataFatturaChanging(string value);
+    partial void OnDataFatturaChanged();
+    partial void OnNumeroPagamentoChanging(string value);
+    partial void OnNumeroPagamentoChanged();
+    partial void OnNumeroPagamentoMedicoChanging(string value);
+    partial void OnNumeroPagamentoMedicoChanged();
+    partial void OnDataPagamentoMedicoChanging(string value);
+    partial void OnDataPagamentoMedicoChanged();
+    partial void OnNumeroNotaCreditoChanging(string value);
+    partial void OnNumeroNotaCreditoChanged();
+    partial void OnDataNotaCreditoChanging(string value);
+    partial void OnDataNotaCreditoChanged();
+    partial void OnNumeroStornoChanging(string value);
+    partial void OnNumeroStornoChanged();
+    partial void OnDataStornoChanging(string value);
+    partial void OnDataStornoChanged();
+    #endregion
+		
+		public Pratiche()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CodicePratica", DbType="VarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		public string CodicePratica
+		{
+			get
+			{
+				return this._CodicePratica;
+			}
+			set
+			{
+				if ((this._CodicePratica != value))
+				{
+					this.OnCodicePraticaChanging(value);
+					this.SendPropertyChanging();
+					this._CodicePratica = value;
+					this.SendPropertyChanged("CodicePratica");
+					this.OnCodicePraticaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CodiceCliente", DbType="VarChar(50)")]
+		public string CodiceCliente
+		{
+			get
+			{
+				return this._CodiceCliente;
+			}
+			set
+			{
+				if ((this._CodiceCliente != value))
+				{
+					this.OnCodiceClienteChanging(value);
+					this.SendPropertyChanging();
+					this._CodiceCliente = value;
+					this.SendPropertyChanged("CodiceCliente");
+					this.OnCodiceClienteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CodiceMedico", DbType="VarChar(50)")]
+		public string CodiceMedico
+		{
+			get
+			{
+				return this._CodiceMedico;
+			}
+			set
+			{
+				if ((this._CodiceMedico != value))
+				{
+					this.OnCodiceMedicoChanging(value);
+					this.SendPropertyChanging();
+					this._CodiceMedico = value;
+					this.SendPropertyChanged("CodiceMedico");
+					this.OnCodiceMedicoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CodiceMedicoEsito", DbType="VarChar(50)")]
+		public string CodiceMedicoEsito
+		{
+			get
+			{
+				return this._CodiceMedicoEsito;
+			}
+			set
+			{
+				if ((this._CodiceMedicoEsito != value))
+				{
+					this.OnCodiceMedicoEsitoChanging(value);
+					this.SendPropertyChanging();
+					this._CodiceMedicoEsito = value;
+					this.SendPropertyChanged("CodiceMedicoEsito");
+					this.OnCodiceMedicoEsitoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Esito", DbType="VarChar(50)")]
+		public string Esito
+		{
+			get
+			{
+				return this._Esito;
+			}
+			set
+			{
+				if ((this._Esito != value))
+				{
+					this.OnEsitoChanging(value);
+					this.SendPropertyChanging();
+					this._Esito = value;
+					this.SendPropertyChanged("Esito");
+					this.OnEsitoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TipoPagamento", DbType="Int")]
+		public System.Nullable<int> TipoPagamento
+		{
+			get
+			{
+				return this._TipoPagamento;
+			}
+			set
+			{
+				if ((this._TipoPagamento != value))
+				{
+					this.OnTipoPagamentoChanging(value);
+					this.SendPropertyChanging();
+					this._TipoPagamento = value;
+					this.SendPropertyChanged("TipoPagamento");
+					this.OnTipoPagamentoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ImportoMedico", DbType="Int")]
+		public System.Nullable<int> ImportoMedico
+		{
+			get
+			{
+				return this._ImportoMedico;
+			}
+			set
+			{
+				if ((this._ImportoMedico != value))
+				{
+					this.OnImportoMedicoChanging(value);
+					this.SendPropertyChanging();
+					this._ImportoMedico = value;
+					this.SendPropertyChanged("ImportoMedico");
+					this.OnImportoMedicoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ImportoSconto", DbType="Int")]
+		public System.Nullable<int> ImportoSconto
+		{
+			get
+			{
+				return this._ImportoSconto;
+			}
+			set
+			{
+				if ((this._ImportoSconto != value))
+				{
+					this.OnImportoScontoChanging(value);
+					this.SendPropertyChanging();
+					this._ImportoSconto = value;
+					this.SendPropertyChanged("ImportoSconto");
+					this.OnImportoScontoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Importo", DbType="Int")]
+		public System.Nullable<int> Importo
+		{
+			get
+			{
+				return this._Importo;
+			}
+			set
+			{
+				if ((this._Importo != value))
+				{
+					this.OnImportoChanging(value);
+					this.SendPropertyChanging();
+					this._Importo = value;
+					this.SendPropertyChanged("Importo");
+					this.OnImportoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroFattura", DbType="VarChar(50)")]
+		public string NumeroFattura
+		{
+			get
+			{
+				return this._NumeroFattura;
+			}
+			set
+			{
+				if ((this._NumeroFattura != value))
+				{
+					this.OnNumeroFatturaChanging(value);
+					this.SendPropertyChanging();
+					this._NumeroFattura = value;
+					this.SendPropertyChanged("NumeroFattura");
+					this.OnNumeroFatturaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataFattura", DbType="VarChar(50)")]
+		public string DataFattura
+		{
+			get
+			{
+				return this._DataFattura;
+			}
+			set
+			{
+				if ((this._DataFattura != value))
+				{
+					this.OnDataFatturaChanging(value);
+					this.SendPropertyChanging();
+					this._DataFattura = value;
+					this.SendPropertyChanged("DataFattura");
+					this.OnDataFatturaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroPagamento", DbType="VarChar(50)")]
+		public string NumeroPagamento
+		{
+			get
+			{
+				return this._NumeroPagamento;
+			}
+			set
+			{
+				if ((this._NumeroPagamento != value))
+				{
+					this.OnNumeroPagamentoChanging(value);
+					this.SendPropertyChanging();
+					this._NumeroPagamento = value;
+					this.SendPropertyChanged("NumeroPagamento");
+					this.OnNumeroPagamentoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroPagamentoMedico", DbType="VarChar(50)")]
+		public string NumeroPagamentoMedico
+		{
+			get
+			{
+				return this._NumeroPagamentoMedico;
+			}
+			set
+			{
+				if ((this._NumeroPagamentoMedico != value))
+				{
+					this.OnNumeroPagamentoMedicoChanging(value);
+					this.SendPropertyChanging();
+					this._NumeroPagamentoMedico = value;
+					this.SendPropertyChanged("NumeroPagamentoMedico");
+					this.OnNumeroPagamentoMedicoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataPagamentoMedico", DbType="VarChar(50)")]
+		public string DataPagamentoMedico
+		{
+			get
+			{
+				return this._DataPagamentoMedico;
+			}
+			set
+			{
+				if ((this._DataPagamentoMedico != value))
+				{
+					this.OnDataPagamentoMedicoChanging(value);
+					this.SendPropertyChanging();
+					this._DataPagamentoMedico = value;
+					this.SendPropertyChanged("DataPagamentoMedico");
+					this.OnDataPagamentoMedicoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroNotaCredito", DbType="VarChar(50)")]
+		public string NumeroNotaCredito
+		{
+			get
+			{
+				return this._NumeroNotaCredito;
+			}
+			set
+			{
+				if ((this._NumeroNotaCredito != value))
+				{
+					this.OnNumeroNotaCreditoChanging(value);
+					this.SendPropertyChanging();
+					this._NumeroNotaCredito = value;
+					this.SendPropertyChanged("NumeroNotaCredito");
+					this.OnNumeroNotaCreditoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataNotaCredito", DbType="VarChar(50)")]
+		public string DataNotaCredito
+		{
+			get
+			{
+				return this._DataNotaCredito;
+			}
+			set
+			{
+				if ((this._DataNotaCredito != value))
+				{
+					this.OnDataNotaCreditoChanging(value);
+					this.SendPropertyChanging();
+					this._DataNotaCredito = value;
+					this.SendPropertyChanged("DataNotaCredito");
+					this.OnDataNotaCreditoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumeroStorno", DbType="VarChar(50)")]
+		public string NumeroStorno
+		{
+			get
+			{
+				return this._NumeroStorno;
+			}
+			set
+			{
+				if ((this._NumeroStorno != value))
+				{
+					this.OnNumeroStornoChanging(value);
+					this.SendPropertyChanging();
+					this._NumeroStorno = value;
+					this.SendPropertyChanged("NumeroStorno");
+					this.OnNumeroStornoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DataStorno", DbType="VarChar(50)")]
+		public string DataStorno
+		{
+			get
+			{
+				return this._DataStorno;
+			}
+			set
+			{
+				if ((this._DataStorno != value))
+				{
+					this.OnDataStornoChanging(value);
+					this.SendPropertyChanging();
+					this._DataStorno = value;
+					this.SendPropertyChanged("DataStorno");
+					this.OnDataStornoChanged();
 				}
 			}
 		}

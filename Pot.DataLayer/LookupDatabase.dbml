@@ -1,30 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="PatentiLookUp" Class="LookupDatabaseDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="AppSettings" ConnectionString="Data Source=LOCALHOST\SQLPASS;Initial Catalog=PatentiLookUp;Persist Security Info=True;User ID=sa" SettingsObjectName="Pot.DataLayer.Properties.Settings" SettingsPropertyName="PatentiLookUpConnectionString" Provider="System.Data.SqlClient" />
-  <Table Name="dbo.Pratiche" Member="Pratiche">
-    <Type Name="Pratiche">
-      <Column Name="CodicePratica" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="NumeroOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="SerieOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="DataOrdineMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="NumeroClienteMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="NumeroMedicoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="ProgressivoPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="NumeroPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="SeriePrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="DataPrimaNotaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="NumeroFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="SerieFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="DataFatturaMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="NumeroNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="SerieNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="DataNotaCreditoMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-    </Type>
-  </Table>
+  <Connection Mode="AppSettings" ConnectionString="Data Source=LOCALHOST\HT_DB;Initial Catalog=PatentiLookUp;Persist Security Info=True;User ID=sa" SettingsObjectName="Pot.DataLayer.Properties.Settings" SettingsPropertyName="PatentiLookUpConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.Anagrafiche" Member="Anagrafiche">
     <Type Name="Anagrafiche">
       <Column Name="CodiceEsterno" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
       <Column Name="CodiceMexal" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="IsMedico" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Progressivi" Member="Progressivi">
+    <Type Name="Progressivi">
+      <Column Name="NomeContatore" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Progressivo" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Pratiche" Member="Pratiche">
+    <Type Name="Pratiche">
+      <Column Name="CodicePratica" Type="System.String" DbType="VarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CodiceCliente" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="CodiceMedico" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="CodiceMedicoEsito" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Esito" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="TipoPagamento" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ImportoMedico" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ImportoSconto" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Importo" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="NumeroFattura" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataFattura" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroPagamento" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroPagamentoMedico" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataPagamentoMedico" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroNotaCredito" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataNotaCredito" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NumeroStorno" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DataStorno" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
     </Type>
   </Table>
 </Database>

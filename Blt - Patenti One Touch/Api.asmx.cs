@@ -76,15 +76,15 @@ namespace Bluetech
 
                 var response = new { Message = message, Result = result };
 
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Configurato Articolo {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Configurato Articolo {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
 
                 return new JavaScriptSerializer().Serialize(response);
             }
             catch (Exception e)
             {
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Errore Configurazione Articolo {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Errore Configurazione Articolo {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
 
                 return e.Message;
             }
@@ -117,15 +117,15 @@ namespace Bluetech
 
             var response = new { Message = message, Result = result };
 
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Configurato Cliente {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Configurato Cliente {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
 
                 return new JavaScriptSerializer().Serialize(response);
             }
             catch (Exception e)
             {
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Errore Configurazione Cliente - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Errore Configurazione Cliente - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
 
                 return e.Message;
             }
@@ -158,15 +158,15 @@ namespace Bluetech
 
             var response = new { Message = message, Result = result };
 
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Configurato Medico {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Configurato Medico {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
 
                 return new JavaScriptSerializer().Serialize(response);
             }
             catch (Exception e)
             {
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Errore Configurazione Medico - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Errore Configurazione Medico - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
 
                 return e.Message;
             }
@@ -198,15 +198,15 @@ namespace Bluetech
 
             var response = new { Message = message, Result = result };
 
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Inserito Ordine {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Inserito Ordine {0} - {1}", message, result), System.Diagnostics.EventLogEntryType.Information, 0);
 
                 return new JavaScriptSerializer().Serialize(response);
             }
             catch (Exception e)
             {
-                HTDebug.Debug dbg = new HTDebug.Debug();
-                dbg.DebugLine(String.Format("Errore Inserimento Ordine - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
+                //HTDebug.Debug dbg = new HTDebug.Debug();
+                //dbg.DebugLine(String.Format("Errore Inserimento Ordine - {0}", e.Message), System.Diagnostics.EventLogEntryType.Error, 0);
 
                 return e.Message;
             }
@@ -248,7 +248,7 @@ namespace Bluetech
         [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
         public string GetModelClienteJson()
         {
-            Pot.DataLayer.Medico m = new Pot.DataLayer.Medico();
+            Pot.DataLayer.Cliente m = new Pot.DataLayer.Cliente();
             m.CodiceFiscale = "CDCFSC16Z21H" + new Random().Next(100, 999).ToString() + "Z";
             //m.PartitaIva = "123456" + new Random().Next(1000, 9999).ToString() + "1";
             m.CodiceUnivoco = "ABC" + new Random().Next(1000, 9999).ToString() + "E";
@@ -262,6 +262,8 @@ namespace Bluetech
             m.Comune = "Ariccia";
             m.Cap = "00100";
             m.Provincia = "ROMA";
+            m.Email = "nome.cognome@email.it";
+            m.Iban = "IT96R0123454321000000012345".Trim();
             return new JavaScriptSerializer().Serialize(m);
         }
 
@@ -284,6 +286,7 @@ namespace Bluetech
             m.Comune = "Ariccia";
             m.Cap = "00100";
             m.Provincia = "ROMA";
+            m.Iban = "IT96R0123454321000000012345".Trim();
             return new JavaScriptSerializer().Serialize(m);
 
         }

@@ -72,9 +72,17 @@ public class MexalClient
 
         public Boolean SetAnagrafica(MexalAnagrafica _anagrafica, out string message, Boolean _isMedico)
         {
-            this.ResetVariabili(1);
+            if (this.client.ERRORE == "Errore: il server SHAKER potrebbe non essere in esecuzione. Eseguire la riconnessione")
+                this.client.AVVIACONNESSIONE();
 
-            if (String.IsNullOrWhiteSpace(_anagrafica.CodiceCliente))
+            Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+
+            this.ResetVariabili(1);
+            var result = lkp.GetAnagrafica(_anagrafica.CodiceRiferimento);
+            if (!String.IsNullOrWhiteSpace(result))
+                this.client.GETPC(result);
+
+            else if (String.IsNullOrWhiteSpace(_anagrafica.CodiceCliente))
                 this.client.PCCOD_S = _anagrafica.Mastro + ".AUTO";
             else
                 this.client.PCCOD_S = _anagrafica.Mastro + "." + _anagrafica.CodiceCliente;
@@ -82,8 +90,10 @@ public class MexalClient
             this.client.PCDES_S = _anagrafica.Descrizione;
             this.client.PCNOM_S = _anagrafica.Nome;
             this.client.PCCOG_S = _anagrafica.Cognome;
-            this.client.PCDTNASC_S = _anagrafica.DataNascita.ToString("ggMMyyyy");
-            this.client.PCNAZ_S = _anagrafica.Nazionalita;
+            if (_anagrafica.DataNascita != null)
+                this.client.PCDTNASC_S = Convert.ToDateTime(_anagrafica.DataNascita).ToString("ggMMyyyy");
+            //if (_anagrafica.Nazionalita != null)
+                this.client.PCNAZ_S = "I";//_anagrafica.Nazionalita;
             this.client.PCCFI_S = _anagrafica.CodiceFiscale;
             this.client.PCNPI_S = _anagrafica.PartitaIva;
             if (String.IsNullOrWhiteSpace(_anagrafica.Nome) && String.IsNullOrWhiteSpace(_anagrafica.PartitaIva))
@@ -97,15 +107,28 @@ public class MexalClient
 
             this.client.PCTEL_S = _anagrafica.Telefono;
             this.client.PCFAX_S = _anagrafica.Cellulare;
-            this.client.PCINT_S = _anagrafica.Email;
-            this.client.PCINT1_S = _anagrafica.Web;
+            this.client.PCINT1_S = _anagrafica.Email;
+            this.client.PCINT_S= _anagrafica.Web;
             this.client.PCIND_S = _anagrafica.Indirizzo;
             this.client.PCLOC_S = _anagrafica.Localita;
             this.client.PCCAP_S = _anagrafica.Cap;
             this.client.PCPAE_S = _anagrafica.Stato;
             this.client.PCPRO_S = _anagrafica.Provincia;
-            
-            //STANDARD AZIENDALI
+
+            if (!String.IsNullOrWhiteSpace(_anagrafica.Iban))
+            {
+                //IBAN
+                this.client.PCCCB_S = _anagrafica.Iban.Substring(15);
+                this.client.PCBBCIN_S = _anagrafica.Iban.Substring(4, 1);
+                this.client.PCABI = Double.Parse(_anagrafica.Iban.Substring(5, 5));
+                this.client.PCCAB = Double.Parse(_anagrafica.Iban.Substring(10, 5));
+
+                this.client.PCIBPAE_S = _anagrafica.Iban.Substring(0, 2);
+                this.client.PCIBCIN = Double.Parse(_anagrafica.Iban.Substring(2, 2));
+                this.client.PCIBAN_S = _anagrafica.Iban;
+                this.client.PCBBAN_S = _anagrafica.Iban.Substring(4);
+            }
+           //STANDARD AZIENDALI
             this.client.PCLIS = _anagrafica.Listino;
             this.client.PCVAL = 1;
 
@@ -113,7 +136,6 @@ public class MexalClient
             if (String.IsNullOrWhiteSpace(this.client.ERRPC_S))
             {
                 //registrazione mydb per codiceriferimento
-                Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
                 if (lkp.SetAnagrafica(_anagrafica.CodiceRiferimento, this.client.PCCOD_S, _isMedico))
                 {
 
@@ -138,20 +160,26 @@ public class MexalClient
 
         public Boolean SetOrdine(MexalDocumentoTestata _documento, string _medico, decimal _importoMedico, out string message)
         {
-            string numOrdine = String.Empty;
-            string datOrdine = String.Empty;
-            string serieOrdine = String.Empty;
-            string numPN = String.Empty;
-            string dataPN = String.Empty;
-            string seriePN = String.Empty;
-            string prgPN = String.Empty;
+            Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+            if (!String.IsNullOrWhiteSpace(lkp.GetCodicePratica(_documento.RiferimentoEsterno)))
+            {
+                message = "Pratica già Esistente!";
+                return false;
+            }
+
+            if (this.client.ERRORE == "Errore: il server SHAKER potrebbe non essere in esecuzione. Eseguire la riconnessione")
+                this.client.AVVIACONNESSIONE();
+            string numFatt = String.Empty;
+            string dataFatt = String.Empty;
+            string serieFatt = String.Empty;
+            string numPag = String.Empty;
 
             //CERCO CODICE CLIENTE SU DATABASE
             this.client.MYDBK_S[2] = _documento.Controparte;
             
             //manca la funzione per leggere 
 
-            //CREO DOCUMENTO "OC" ORDINE CLIENTE SU MEXAL
+            //CREO DOCUMENTO "FT" ORDINE CLIENTE SU MEXAL
             this.ResetVariabili(4);
             this.client.MMSAZ = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["MexalSottoAzienda"]);
             this.client.MMSIG_S = _documento.Sigla;
@@ -160,10 +188,11 @@ public class MexalClient
             this.client.MMDAT_S = _documento.Data.ToString("yyyyMMdd");
             this.client.MMMAG = _documento.Magazzino;
             this.client.MMCLI_S = _documento.Controparte;
-            this.client.MMPAG = _documento.Pagamento;
-            this.client.MMBAPP = _documento.Banca;
+            //this.client.MMPAG = _documento.Pagamento;
+            //this.client.MMBAPP = _documento.Banca;
             this.client.MMNUMRE_S = _documento.RiferimentoEsterno;
             this.client.MMDATRE_S = _documento.Data.ToString("yyyyMMdd");
+            this.client.MMCCR = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
 
             for (int r = 0; r < _documento.Righe.Count; r++)
             {
@@ -179,11 +208,11 @@ public class MexalClient
                 }
             }
             
-            this.client.PUTMM(0);
+            this.client.PUTMM(1);
 
-            numOrdine = this.client.MMNUM.ToString();
-            serieOrdine = this.client.MMSER.ToString();
-            datOrdine = this.client.MMDAT_S;
+            numFatt = this.client.MMNUM.ToString();
+            serieFatt = this.client.MMSER.ToString();
+            dataFatt = this.client.MMDAT_S;
 
             //SE VA A BUON FINE ALLORA PROSEGUO ELABORAZIONE
             if (String.IsNullOrWhiteSpace(this.client.ERRMM_S))
@@ -193,28 +222,49 @@ public class MexalClient
 
                 this.client.PNDRE_S = _documento.Data.ToString("yyyyMMdd");
                 this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNAperturaMedico"];
-                this.client.PNNPR = 0;
+                this.client.PNNDO = lkp.GetProgressivo("GrAnticipoMedici");
+                this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
                 this.client.PNTDE_S = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneAperturaPraticaTestata"] + _documento.RiferimentoEsterno;
-                this.client.PNCTO_S[1] = _medico;
+                this.client.PNCTO_S[1] = _documento.Controparte;
                 this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneAperturaPraticaRiga"] + _documento.RiferimentoEsterno;
-                this.client.PNIMD[1] = double.Parse(_importoMedico.ToString());
+                this.client.PNIMP[1] = double.Parse(        _importoMedico.ToString());
+                this.client.PNCCR[1] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
                 this.client.PNCTO_S[2] = System.Configuration.ConfigurationManager.AppSettings["ContoDepositoMedici"];
                 this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneAperturaPraticaRiga"] + _documento.RiferimentoEsterno;
-                this.client.PNIMD[2] = double.Parse((0 - _importoMedico).ToString());
+                this.client.PNIMP[2] = double.Parse((0 - _importoMedico).ToString());
+                this.client.PNCCR[2] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+                                                
+                this.client.PUTPN();
+
+                //registro pagamento del cliente tra merci e conto anticipi
+                this.ResetVariabili(2);
+
+
+                this.client.PNSCT_S[1] = _documento.Controparte;
+                this.client.PNSDS_S[1] = _documento.Data.ToString("yyyyMMdd");
+                this.client.PNSTP_S[1] = "M";
+                this.client.PNNDO = lkp.GetProgressivo("PgIncassoCliente");
+                this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
+                this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNPagamentoCliente"];
+                this.client.PNDRE_S = _documento.Data.ToString("yyyyMMdd");
+                this.client.PNRPR = 2;
+                this.client.PNDDO_S = _documento.Data.ToString("yyyyMMdd");
+                this.client.PNCTO_S[1] = _documento.Controparte;
+                this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneIncassoClienteTestata"] + _documento.RiferimentoEsterno;
+                this.client.PNIMP[1] = double.Parse((0 - _documento.TotaleDocumento).ToString());
+                this.client.PNCTO_S[2] = System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoContanti"];
+                this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneIncassoClienteRiga"] + _documento.RiferimentoEsterno;
+                this.client.PNIMP[2] = double.Parse((_documento.TotaleDocumento).ToString());
 
                 this.client.PUTPN();
 
-                numPN = this.client.PNNPR.ToString();
-                prgPN = this.client.PNPRN.ToString();
-                dataPN = this.client.PNDRE_S.ToString();
-                seriePN = this.client.PNSPR.ToString();
+
+                numPag = this.client.PNDDO_S.ToString();
 
                 if (String.IsNullOrWhiteSpace(this.client.ERRPN_S))
                 {
-                    Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
-                    if (lkp.SetCodiceOrdine(_documento.RiferimentoEsterno, numOrdine, serieOrdine, datOrdine, numPN, seriePN, prgPN, dataPN))
+                    if (lkp.SetPratica(_documento.RiferimentoEsterno, _documento.Controparte, _medico, _documento.Pagamento, int.Parse(_documento.Sconto.ToString()), int.Parse(_importoMedico.ToString()), int.Parse(_documento.TotaleDocumento.ToString()), numFatt + "/" + serieFatt, dataFatt, numPag))
                     {
-                        lkp.SetPrimaNota(_documento.RiferimentoEsterno, numPN, seriePN, prgPN, dataPN);
                         message = "Ok!";
                         return true;
                     }
@@ -243,6 +293,17 @@ public class MexalClient
 
         public Boolean SetVisita(MexalVisita _visita, out string message)
         {
+            if (this.client.ERRORE == "Errore: il server SHAKER potrebbe non essere in esecuzione. Eseguire la riconnessione")
+                this.client.AVVIACONNESSIONE();
+
+            Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
+            if (String.IsNullOrWhiteSpace(lkp.GetCodicePratica(_visita.CodicePratica)))
+            {
+                message = "Pratica non Esistente!";
+                return false;
+            }
+
+
             message = String.Empty;
             try
             {
@@ -252,77 +313,119 @@ public class MexalClient
                 string numNC = String.Empty;
                 string serieNC = String.Empty;
                 string dataNC = String.Empty;
-                Pot.DataLayer.GestioneLookUp lkp = new Pot.DataLayer.GestioneLookUp();
-                string ordine = "OC" + lkp.GetCodiceOrdine(_visita.CodicePratica);
-                this.client.GETMM_EXT(ordine);
 
                 switch (_visita.Esito)
                 {
                     case "OK":
-                        //evado ordine e fatturo tutto
-                        this.client.MMSIG_S = "FT";
-                        this.client.MMSER = 1;
-                        this.client.MMNUM = 0;
-                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
-                        this.client.PUTMM(0);
-                        numFT = this.client.MMNUM.ToString();
-                        serieFT = this.client.MMSER.ToString();
-                        dataFT = this.client.MMDAT_S;
-                        //CANCELLO ORDINE ORIGINALE
-                        this.client.GETMM_EXT(ordine);
 
-                        for (int r = 1; r <= this.client.NMM; r++)
-                        {
-                            this.client.MMTPR_S[r] = string.Empty;
-                            this.client.MMART_S[r] = string.Empty;
-                            this.client.MMDES_S[r] = string.Empty;
-                            this.client.MMQTA[r] = 0;
-                            this.client.MMALI_S[r] = string.Empty;
-                            this.client.MMPRZ[r] = 0;
-                        }
-                        this.client.PUTMM(0);
+                        this.client.AZZVARSYS(2);
 
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
+                        this.client.PNDRE_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNAperturaMedico"];
+                        this.client.PNNDO = lkp.GetProgressivo("GrAntDebMedici");
+                        this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNTDE_S = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNCTO_S[1] = System.Configuration.ConfigurationManager.AppSettings["ContoDepositoMedici"];
+                        this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNIMP[1] = double.Parse(20.ToString());
+                        this.client.PNCCR[1] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+                        this.client.PNCTO_S[2] = System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoMedici"];
+                        this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNIMP[2] = double.Parse((0 - 20).ToString());
+                        this.client.PNCCR[2] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+
+                        this.client.PUTPN();
+
+                        this.ResetVariabili(2);
+
+
+                        this.client.PNDRE_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNAperturaMedico"];
+                        this.client.PNNDO = lkp.GetProgressivo("GrDebitoMedico");
+                        this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
+                        //this.client.PNSTP_S[1] = "B";
+                        this.client.PNPAG = 12;
+                        this.client.PNTDE_S = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNCTO_S[1] = System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoMedici"];
+                        this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNIMP[1] = double.Parse(20.ToString());
+                        this.client.PNCCR[1] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+                        this.client.PNCTO_S[2] = lkp.GetAnagrafica(_visita.CodiceMedico);
+                        this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNIMP[2] = double.Parse((0 - 20).ToString());
+                        this.client.PNCCR[2] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+
+                        this.client.PUTPN();
+
+                        lkp.SetEsito(_visita.CodicePratica, _visita.Esito, _visita.CodiceMedico, this.client.PNNDO.ToString(), DateTime.Now.ToString("yyyyMMdd"), null, null, null, null);
                         break;
                     case "KO":
-                        //visita non passata, fatturo servizi e medico ma restituisco spese e imposta
+                        //visita non passata, pago medico
+                        string numPag = String.Empty;
 
-                        //evado ordine
-                        this.client.MMSIG_S = "FT";
-                        this.client.MMSER = 1;
+                        this.client.AZZVARSYS(2);
+
+                        this.client.PNDRE_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNAperturaMedico"];
+                        this.client.PNNDO = lkp.GetProgressivo("GrAntDebMedici");
+                        this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNTDE_S = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNCTO_S[1] = System.Configuration.ConfigurationManager.AppSettings["ContoDepositoMedici"];
+                        this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNIMP[1] = double.Parse(20.ToString());
+                        this.client.PNCCR[1] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+                        this.client.PNCTO_S[2] = System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoMedici"];
+                        this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizionePagamentoClienteMedico"] + _visita.CodicePratica;
+                        this.client.PNIMP[2] = double.Parse((0 - 20).ToString());
+                        this.client.PNCCR[2] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+
+                        this.client.PUTPN();
+
+                        this.ResetVariabili(2);
+
+
+                        this.client.PNDRE_S = DateTime.Now.ToString("yyyyMMdd");
+                        this.client.PNCAU_S = System.Configuration.ConfigurationManager.AppSettings["CausalePNAperturaMedico"];
+                        this.client.PNNDO = lkp.GetProgressivo("GrDebitoMedico");
+                        this.client.PNDDO_S = DateTime.Now.ToString("yyyyMMdd");
+                        //this.client.PNSTP_S[1] = "B";
+                        this.client.PNPAG = 12;
+                        this.client.PNTDE_S = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNCTO_S[1] = System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoMedici"];
+                        this.client.PNDES_S[1] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNIMP[1] = double.Parse(20.ToString());
+                        this.client.PNCCR[1] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+                        this.client.PNCTO_S[2] = lkp.GetAnagrafica(_visita.CodiceMedico);
+                        this.client.PNDES_S[2] = System.Configuration.ConfigurationManager.AppSettings["PrefissoDescrizioneGrAnticipoDebitoMedici"] + _visita.CodicePratica;
+                        this.client.PNIMP[2] = double.Parse((0 - 20).ToString());
+                        this.client.PNCCR[2] = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["CentrodiCosto"]);
+
+                        this.client.PUTPN();
+
+                        numPag = this.client.PNNDO.ToString();
+
+                        //emetto nota credito
+                        var pratica = lkp.GetPratica(_visita.CodicePratica);
+                        string ordine = System.Configuration.ConfigurationManager.AppSettings["TipoDocAperturaPratica"] + pratica.NumeroFattura.Substring(pratica.NumeroFattura.IndexOf('/')+1) + "/" + pratica.NumeroFattura.Substring(0,pratica.NumeroFattura.IndexOf('/'));
+                        this.client.GETMM_EXT(ordine);
+
+                        this.client.MMSIG_S = "NC";
+                        this.client.MMSER = Double.Parse(System.Configuration.ConfigurationManager.AppSettings["Sezionale"]);
                         this.client.MMNUM = 0;
                         this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
-
-                        for (int r = 1; r <= this.client.NMM; r++)
+                        Double Pagamento = 0;
+                        switch(pratica.TipoPagamento)
                         {
-                            if (new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004" }.Any(s => s == this.client.MMART_S[r]))
-                            {
-                                this.client.MMTPR_S[r] = string.Empty;
-                                this.client.MMART_S[r] = string.Empty;
-                                this.client.MMDES_S[r] = string.Empty;
-                                this.client.MMQTA[r] = 0;
-                                this.client.MMALI_S[r] = string.Empty;
-                                this.client.MMPRZ[r] = 0;
-                            }
+                            case 1:
+                                Pagamento = 1;
+                                break;
+                            case 4:
+                                Pagamento = 12;
+                                break;
+                            default:
+                                break;
                         }
-                        this.client.PUTMM(0);
-                        numFT = this.client.MMNUM.ToString();
-                        serieFT = this.client.MMSER.ToString();
-                        dataFT = this.client.MMDAT_S;
-
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-
-                        //cancello righe evase
-                        this.client.GETMM_EXT(ordine);
+                        this.client.MMPAG = Pagamento;
 
                         for (int r = 1; r <= this.client.NMM; r++)
                         {
@@ -336,121 +439,26 @@ public class MexalClient
                                 this.client.MMPRZ[r] = 0;
                             }
                         }
-                        this.client.PUTMM(0);
+                        this.client.PUTMM(1);
+                        numNC = this.client.MMNUM.ToString();
+                        serieNC = this.client.MMSER.ToString();
+                        dataNC = this.client.MMDAT_S;
+
                         if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
                         {
                             message = this.client.ERRMM_S;
                             return false;
                         }
 
-                        //emetto nota credito per righe non evase
-                        this.client.GETMM_EXT(ordine);
-                        this.client.MMSIG_S = "NC";
-                        this.client.MMSER = 1;
-                        this.client.MMNUM = 0;
-                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
-                        this.client.PUTMM(0);
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-                        numNC = this.client.MMNUM.ToString();
-                        serieNC = this.client.MMSER.ToString();
-                        dataNC = this.client.MMDAT_S;
-                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
+                        lkp.SetEsito(_visita.CodicePratica, _visita.Esito, _visita.CodiceMedico, numPag, DateTime.Now.ToString("yyyyMMdd"), numNC, dataNC, null, null);
                         break;
 
                     case "MANCATA":
 
-                        //evado ordine
-                        this.client.MMSIG_S = "FT";
-                        this.client.MMSER = 1;
-                        this.client.MMNUM = 0;
-                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
+                        lkp.SetEsito(_visita.CodicePratica, _visita.Esito, _visita.CodiceMedico, "0", DateTime.Now.ToString("yyyyMMdd"), numNC, dataNC, "0", "0");
+                        message = "ANCORA NON GESTITO";
+                        return false;
 
-                        for (int r = 1; r <= this.client.NMM; r++)
-                        {
-                            if (new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004", "A-SP0005" }.Any(s => s == this.client.MMART_S[r]))
-                            {
-                                this.client.MMTPR_S[r] = string.Empty;
-                                this.client.MMART_S[r] = string.Empty;
-                                this.client.MMDES_S[r] = string.Empty;
-                                this.client.MMQTA[r] = 0;
-                                this.client.MMALI_S[r] = string.Empty;
-                                this.client.MMPRZ[r] = 0;
-                            }
-                        }
-                        this.client.PUTMM(0);
-                        numFT = this.client.MMNUM.ToString();
-                        serieFT = this.client.MMSER.ToString();
-                        dataFT = this.client.MMDAT_S;
-
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-
-                        //cancello righe evase
-                        this.client.GETMM_EXT(ordine);
-
-                        for (int r = 1; r <= this.client.NMM; r++)
-                        {
-                            if (!new List<string>() { "A-SP0002", "A-SP0003", "A-SP0004", "A-SP0005" }.Any(s => s == this.client.MMART_S[r]))
-                            {
-                                this.client.MMTPR_S[r] = string.Empty;
-                                this.client.MMART_S[r] = string.Empty;
-                                this.client.MMDES_S[r] = string.Empty;
-                                this.client.MMQTA[r] = 0;
-                                this.client.MMALI_S[r] = string.Empty;
-                                this.client.MMPRZ[r] = 0;
-                            }
-                        }
-                        this.client.PUTMM(0);
-
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-                        //emetto nota credito per righe non evase
-                        this.client.GETMM_EXT(ordine);
-                        this.client.MMSIG_S = "NC";
-                        this.client.MMSER = 1;
-                        this.client.MMNUM = 0;
-                        this.client.MMDAT_S = DateTime.Now.ToString("yyyyMMdd");
-                        this.client.PUTMM(0);
-
-                        numNC = this.client.MMNUM.ToString();
-                        serieNC = this.client.MMSER.ToString();
-                        dataNC = this.client.MMDAT_S;
-
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-                        //CANCELLO ORDINE ORIGINALE
-                        this.client.GETMM_EXT(ordine);
-
-                        for (int r = 1; r <= this.client.NMM; r++)
-                        {
-                            this.client.MMTPR_S[r] = string.Empty;
-                            this.client.MMART_S[r] = string.Empty;
-                            this.client.MMDES_S[r] = string.Empty;
-                            this.client.MMQTA[r] = 0;
-                            this.client.MMALI_S[r] = string.Empty;
-                            this.client.MMPRZ[r] = 0;
-                        }
-                        this.client.PUTMM(0);
-
-                        if (!String.IsNullOrWhiteSpace(this.client.ERRMM_S))
-                        {
-                            message = this.client.ERRMM_S;
-                            return false;
-                        }
-                        lkp.SetEsito(_visita.CodicePratica, numFT, serieFT, dataFT, numNC, serieNC, dataNC);
                         break;
                     default:
                         break;
@@ -469,7 +477,20 @@ public class MexalClient
         }
 
 
-
+        public string ContoPagamento(string _conto)
+        {
+            switch(_conto)
+            {
+                case "1":
+                    return System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoContanti"];
+                case "4":
+                    return System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoCarta"];
+                case "3":
+                    return System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoPaypal"];
+                default:
+                    return System.Configuration.ConfigurationManager.AppSettings["ContoPagamentoDefault"];
+            }
+        }
 
     public void ResetVariabili(Int32 _struttura)
         {
@@ -504,8 +525,9 @@ public class MexalClient
         public string Provincia { get; set; }
         public string Stato { get; set; }
         public string Nazionalita { get; set; }
-        public DateTime DataNascita { get; set; }
+        public DateTime? DataNascita { get; set; }
         public string CodiceRiferimento { get; set; }
+        public string Iban { get; set; }
 
         public MexalAnagrafica()
         {
@@ -518,13 +540,14 @@ public class MexalClient
             this.Cognome = _cliente.Cognome;
             this.CodiceRiferimento =  _cliente.CodiceUnivoco;
             this.CodiceFiscale = _cliente.CodiceFiscale;
-            this.DataNascita = _cliente.DataNascita.Value;// .ToString("ggMMyyyy");
+            if (_cliente.DataNascita != null)
+                this.DataNascita = _cliente.DataNascita.Value;// .ToString("ggMMyyyy");
             this.Indirizzo = _cliente.Indirizzo;
             this.Localita = _cliente.Comune;
             this.Cap = _cliente.Cap;
             this.Stato = _cliente.Nazione;
             this.Nazionalita = _cliente.Nazionalita;
-            
+            this.Iban = _cliente.Iban;
         }
 
         public void LoadFromMedico(Bluetech.Pot.DataLayer.Medico _medico)
@@ -534,13 +557,14 @@ public class MexalClient
             this.CodiceRiferimento = _medico.CodiceUnivoco;
             this.CodiceFiscale = _medico.CodiceFiscale;
             this.PartitaIva = _medico.PartitaIva;
-            this.DataNascita = _medico.DataNascita.Value;// .ToString("ggMMyyyy");
+            if (_medico.DataNascita != null)
+                this.DataNascita = _medico.DataNascita.Value;// .ToString("ggMMyyyy");
             this.Indirizzo = _medico.Indirizzo;
             this.Localita = _medico.Comune;
             this.Cap = _medico.Cap;
             this.Stato = _medico.Nazione;
             this.Nazionalita = _medico.Nazionalita;
-
+            this.Iban = _medico.Iban;
         }
 
     }
@@ -556,6 +580,7 @@ public class MexalClient
         public string RiferimentoEsterno { get; set; }
 
         //PIEDE
+        public decimal TotaleDocumento { get; set; }
         public decimal TotaleImponibile { get; set; }
         public decimal TotaleImposta { get; set; }
         public Int32 Pagamento { get; set; }
@@ -573,6 +598,7 @@ public class MexalClient
             this.Controparte = _ordine.CodiceUnivocoControparte;
             this.TotaleImponibile = _ordine.TotaleImponibile;
             this.TotaleImposta = _ordine.TotaleImposte;
+            this.TotaleDocumento = _ordine.TotaleFattura;
             this.Pagamento = _ordine.TipoPagamento;
             this.Banca = _ordine.BancaPagamento;
             this.RiferimentoEsterno = _ordine.CodicePratica;
